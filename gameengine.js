@@ -7,22 +7,6 @@ KEY_CODES = {
     68 : 'd',
     87 : 'w'
 }
-//
-// function Timer() {
-//     this.gameTime = 0;
-//     this.maxStep = 0.05;
-//     this.wallLastTimestamp = 0;
-// }
-//
-// Timer.prototype.tick = function() {
-//     var wallCurrent = Date.now();
-//     var wallDelta = (wallCurrent - this.wallLastTimestamp) / 1000;
-//     this.wallLastTimestamp = wallCurrent;
-//
-//     var gameDelta = Math.min(wallDelta, this.maxStep);
-//     this.gameTime += gameDelta;
-//     return gameDelta;
-// }
 
 // GameEngine Constructor
 function GameEngine() {
@@ -39,7 +23,6 @@ GameEngine.prototype = {
             this.keyStatus[KEY_CODES[code]] = false;
         }
         this.startInput();
-        // this.timer = new Timer();
     },
 
     start : function () {
@@ -101,7 +84,6 @@ GameEngine.prototype = {
     },
 
     loop : function () {
-        // this.clockTick = this.timer.tick();
         this.update();
         this.draw();
     }
