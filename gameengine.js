@@ -2,17 +2,50 @@
  * Created by KyleD on 1/11/16.
  */
 
+function Timer() {
+    this.gameTime = 0;
+    this.maxStep = 0.05;
+    this.wallLastTimestamp = 0;
+
+    this.tick = function() {
+        var wallCurrent = Date.now();
+        var wallDelta = (wallCurrent - this.wallLastTimestamp) / 1000;
+        this.wallLastTimestamp = wallCurrent;
+
+        var gameDelta = Math.min(wallDelta, this.maxStep);
+        this.gameTime += gameDelta;
+        return gameDelta;
+    }
+}
+
 KEY_CODES = {
     65 : 'a',
     68 : 'd',
     87 : 'w'
 }
 
+function Timer() {
+    this.gameTime = 0;
+    this.maxStep = 0.05;
+    this.wallLastTimestamp = 0;
+}
+
+Timer.prototype.tick = function() {
+    var wallCurrent = Date.now();
+    var wallDelta = (wallCurrent - this.wallLastTimestamp) / 1000;
+    this.wallLastTimestamp = wallCurrent;
+
+    var gameDelta = Math.min(wallDelta, this.maxStep);
+    this.gameTime += gameDelta;
+    return gameDelta;
+}
+
 // GameEngine Constructor
 function GameEngine() {
     this.entities = [];
     this.ctx = null;
-    this.keyStatus = {keyDown : false};
+    this.keyStatus = {};
+    this.keysDown = false;
 }
 
 // GameEngine methods
@@ -23,6 +56,7 @@ GameEngine.prototype = {
             this.keyStatus[KEY_CODES[code]] = false;
         }
         this.startInput();
+        this.timer = new Timer();
     },
 
     start : function () {
@@ -39,14 +73,20 @@ GameEngine.prototype = {
         this.ctx.canvas.addEventListener("keydown", function(event) {
             if (KEY_CODES[event.keyCode]) {
                 that.keyStatus[KEY_CODES[event.keyCode]] = true;
-                that.keyStatus.keyDown = true;
+                that.keysDown = true;
                 event.preventDefault();
             }
         }, false);
         this.ctx.canvas.addEventListener("keyup", function(event) {
             if (KEY_CODES[event.keyCode]) {
-                that.keyStatus.keyDown = false;
                 that.keyStatus[KEY_CODES[event.keyCode]] = false;
+                that.keysDown = false;
+                for (code in KEY_CODES) {
+                    if (that.keyStatus[KEY_CODES[code]]) {
+                        that.keysDown = true;
+                    }
+                }
+                // console.log(that.keysDown);
                 event.preventDefault();
             }
         }, false);
@@ -84,6 +124,7 @@ GameEngine.prototype = {
     },
 
     loop : function () {
+        this.clockTick = this.timer.tick();
         this.update();
         this.draw();
     }
