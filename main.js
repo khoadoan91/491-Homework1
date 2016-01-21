@@ -36,7 +36,7 @@ function Nitro(game) {
     this.game = game;
     this.ground = 500;
     this.ceiling = 100;
-    this.wallInLocX = 650 - 100;
+    this.wallInLocX = 650 - 102;
     this.wallHeight = 385 - 85;  
     this.currentX = 0;
     this.currentY = 500;
@@ -61,27 +61,27 @@ Nitro.prototype = {
             this.flyAnimation.flip = false;
             if (this.currentY <= this.wallHeight || this.currentX < this.wallInLocX) {
                 if (this.currentX < 700) {  // 800 - 100
-                    this.currentX += 2;
+                    this.currentX += 4;
                 }
             }
         } else if (this.game.keyStatus['a']) {
             this.animation.flip = true;
             this.flyAnimation.flip = true;
             if (this.currentX > 0) {
-                this.currentX -= 2;
+                this.currentX -= 4;
             }
         }
         if (this.game.keyStatus['w']) {
             this.isOnGround = false;
             this.isLanding = false;
             if (this.currentY > this.ceiling) {
-                this.currentY -= 2;
+                this.currentY -= 4;
             }
         } else if (!this.game.keyStatus['w']) {
             this.isLanding = true;
             if ((this.currentY < this.ground && this.currentX <= this.wallInLocX) || 
                 (this.currentX > this.wallInLocX && this.currentY < this.wallHeight)) {
-                this.currentY += 2;
+                this.currentY += 4;
             } else {
                 this.isOnGround = true;
             }
