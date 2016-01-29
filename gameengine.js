@@ -2,46 +2,33 @@
  * Created by KyleD on 1/11/16.
  */
 
-function Timer() {
-    this.gameTime = 0;
-    this.maxStep = 0.05;
-    this.wallLastTimestamp = 0;
-
-    this.tick = function() {
-        var wallCurrent = Date.now();
-        var wallDelta = (wallCurrent - this.wallLastTimestamp) / 1000;
-        this.wallLastTimestamp = wallCurrent;
-
-        var gameDelta = Math.min(wallDelta, this.maxStep);
-        this.gameTime += gameDelta;
-        return gameDelta;
-    }
-}
-
-KEY_CODES = {
+var KEY_CODES = {
     65 : 'a',
     68 : 'd',
     87 : 'w'
-}
+};
 
 function Timer() {
+     
     this.gameTime = 0;
     this.maxStep = 0.05;
     this.wallLastTimestamp = 0;
 }
 
-Timer.prototype.tick = function() {
-    var wallCurrent = Date.now();
-    var wallDelta = (wallCurrent - this.wallLastTimestamp) / 1000;
+Timer.prototype.tick = function () {
+     
+    var wallCurrent = Date.now(),
+        wallDelta = (wallCurrent - this.wallLastTimestamp) / 1000,
+        gameDelta = Math.min(wallDelta, this.maxStep);
+    
     this.wallLastTimestamp = wallCurrent;
-
-    var gameDelta = Math.min(wallDelta, this.maxStep);
     this.gameTime += gameDelta;
     return gameDelta;
-}
+};
 
 // GameEngine Constructor
 function GameEngine() {
+     
     this.entities = [];
     this.ctx = null;
     this.keyStatus = {};
@@ -51,15 +38,20 @@ function GameEngine() {
 // GameEngine methods
 GameEngine.prototype = {
     init : function (ctx) {
+         
         this.ctx = ctx;
+        var code;
         for (code in KEY_CODES) {
-            this.keyStatus[KEY_CODES[code]] = false;
+            if (KEY_CODES.hasOwnProperty(code)) {
+                this.keyStatus[KEY_CODES[code]] = false;
+            }
         }
         this.startInput();
         this.timer = new Timer();
     },
 
     start : function () {
+         
         var that = this;
         (function gameLoop() {
             that.loop();
@@ -68,21 +60,23 @@ GameEngine.prototype = {
     },
 
     startInput : function () {
+         
         var that = this;
         // keypressed: when holding a button, keypressed will fire the event rapidly
-        this.ctx.canvas.addEventListener("keydown", function(event) {
+        this.ctx.canvas.addEventListener("keydown", function (event) {
             if (KEY_CODES[event.keyCode]) {
                 that.keyStatus[KEY_CODES[event.keyCode]] = true;
                 that.keysDown = true;
                 event.preventDefault();
             }
         }, false);
-        this.ctx.canvas.addEventListener("keyup", function(event) {
+        this.ctx.canvas.addEventListener("keyup", function (event) {
             if (KEY_CODES[event.keyCode]) {
                 that.keyStatus[KEY_CODES[event.keyCode]] = false;
                 that.keysDown = false;
+                var code;
                 for (code in KEY_CODES) {
-                    if (that.keyStatus[KEY_CODES[code]]) {
+                    if (KEY_CODES.hasOwnProperty(code) && that.keyStatus[KEY_CODES[code]]) {
                         that.keysDown = true;
                     }
                 }
@@ -92,31 +86,36 @@ GameEngine.prototype = {
         }, false);
     },
 
-    addEntity : function(entity) {
+    addEntity : function (entity) {
+         
         this.entities.push(entity);
     },
 
     draw : function () {
+         
+        var i;
         this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
         this.ctx.save();
-        for (var i = 0; i < this.entities.length; i++) {
+        for (i = 0; i < this.entities.length; i += 1) {
             this.entities[i].draw(this.ctx);
         }
         this.ctx.restore();
     },
 
     update : function () {
-        var entitiesCount = this.entities.length;
+         
+        var entitiesCount = this.entities.length, i, entity;
 
-        for (var i = 0; i < entitiesCount; i++) {
-            var entity = this.entities[i];
+        for (i = 0; i < entitiesCount; i += 1) {
+            entity = this.entities[i];
 
             if (!entity.removeFromWorld) {
+                // console.log(entity);
                 entity.update();
             }
         }
 
-        for (var i = this.entities.length - 1; i >= 0; i--) {
+        for (i = this.entities.length - 1; i >= 0; i -= 1) {
             if (this.entities[i].removeFromWorld) {
                 this.entities.splice(i, 1);
             }
@@ -124,8 +123,9 @@ GameEngine.prototype = {
     },
 
     loop : function () {
+         
         this.clockTick = this.timer.tick();
         this.update();
         this.draw();
     }
-}
+};
