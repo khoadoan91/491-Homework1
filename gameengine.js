@@ -1,15 +1,4 @@
-/**
- * Created by KyleD on 1/11/16.
- */
-
-var KEY_CODES = {
-    65 : 'a',
-    68 : 'd',
-    87 : 'w'
-};
-
 function Timer() {
-     
     this.gameTime = 0;
     this.maxStep = 0.05;
     this.wallLastTimestamp = 0;
@@ -26,22 +15,25 @@ Timer.prototype.tick = function () {
     return gameDelta;
 };
 
-// GameEngine Constructor
-function GameEngine() {
-     
+var KEY_CODES = {
+    65 : 'a',
+    68 : 'd',
+    87 : 'w'
+};
+
+function GameEngine(ctx) {
     this.entities = [];
-    this.ctx = null;
+    this.ctx = ctx;
+    this.camera = null;
+
     this.keyStatus = {};
     this.keysDown = false;
 }
 
-// GameEngine methods
 GameEngine.prototype = {
-    init : function (ctx) {
-         
-        this.ctx = ctx;
-        var code;
-        for (code in KEY_CODES) {
+    init : function (camera) {
+        this.camera = camera;
+        for (var code in KEY_CODES) {
             if (KEY_CODES.hasOwnProperty(code)) {
                 this.keyStatus[KEY_CODES[code]] = false;
             }
@@ -51,18 +43,15 @@ GameEngine.prototype = {
     },
 
     start : function () {
-         
         var that = this;
         (function gameLoop() {
             that.loop();
-            requestAnimationFrame(gameLoop, that.ctx.canvas);
+            window.requestAnimationFrame(gameLoop, that.ctx.canvas);
         })();
     },
 
     startInput : function () {
-         
         var that = this;
-        // keypressed: when holding a button, keypressed will fire the event rapidly
         this.ctx.canvas.addEventListener("keydown", function (event) {
             if (KEY_CODES[event.keyCode]) {
                 that.keyStatus[KEY_CODES[event.keyCode]] = true;
@@ -74,13 +63,11 @@ GameEngine.prototype = {
             if (KEY_CODES[event.keyCode]) {
                 that.keyStatus[KEY_CODES[event.keyCode]] = false;
                 that.keysDown = false;
-                var code;
-                for (code in KEY_CODES) {
+                for (var code in KEY_CODES) {
                     if (KEY_CODES.hasOwnProperty(code) && that.keyStatus[KEY_CODES[code]]) {
                         that.keysDown = true;
                     }
                 }
-                // console.log(that.keysDown);
                 event.preventDefault();
             }
         }, false);
@@ -97,7 +84,7 @@ GameEngine.prototype = {
         this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
         this.ctx.save();
         for (i = 0; i < this.entities.length; i += 1) {
-            this.entities[i].draw(this.ctx);
+            this.entities[i].draw(this.ctx, this.camera.xView, this.camera.yView);
         }
         this.ctx.restore();
     },
@@ -120,10 +107,10 @@ GameEngine.prototype = {
                 this.entities.splice(i, 1);
             }
         }
+        this.camera.update();
     },
 
     loop : function () {
-         
         this.clockTick = this.timer.tick();
         this.update();
         this.draw();
