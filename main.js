@@ -9,7 +9,8 @@ ASSET_MANAGER.queueDownload("assets/knight run flipped.png");
 ASSET_MANAGER.queueDownload("assets/knight standing.png");
 ASSET_MANAGER.queueDownload("assets/knight standing flipped.png");
 ASSET_MANAGER.queueDownload("assets/forest platform2x.png");
-
+ASSET_MANAGER.queueDownload("assets/forest sky.png");
+ASSET_MANAGER.queueDownload("assets/forest trees.png");
 
 /*
 Download all the elements and add entities to the game.
@@ -30,12 +31,12 @@ ASSET_MANAGER.downloadAll(function () {
         "|              xxxxx                       |",
         "|          xxxxx                           |",
         "|                                          |",
-        "|xxxx                                      |",
-        "|   xxxxx  xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx|",
-        "|                                          |",
-        "|                                          |",
-        "|                                          |",
-        "|       xxxxxxxxx                          |",
+        "|xxxx                                    K |",
+        "|   xxxxx  xxxxxxxxxxxxxxxxxxxxxDDDDxxxxxxx|",
+        "|                              x    x      |",
+        "|                              x    x      |",
+        "|                              x    x      |",
+        "|       xxxxxxxxx              x    x      |",
         "|                                          |",
         "|                                          |",
         "|                                          |",
@@ -57,6 +58,7 @@ ASSET_MANAGER.downloadAll(function () {
     game.addEntity(lv1);
     game.addEntity(lv1.player);
     game.start();
+    
 });
 
 function Entity (x, y, width, height) {

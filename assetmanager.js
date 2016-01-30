@@ -40,7 +40,7 @@ AssetManager.prototype.downloadAll = function (callback) {
         });
 
         img.src = path;
-        img.setAttribute('crossOrigin', 'anonymous');
+        // img.setAttribute('crossOrigin', 'anonymous');
         this.cache[path] = img;
     }
 };
