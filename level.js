@@ -1,6 +1,6 @@
 function Level (map, game) {
     // suppose there is an image about the ground with the size
-    this.blockSize = 50;
+    this.blockSize = 25;
     this.width = map[0].length;
     this.height = map.length;
     this.width_px = this.width * this.blockSize;
@@ -19,6 +19,8 @@ function Level (map, game) {
                 case "|" : fieldType = "wall"; break;
                 case "D" : fieldType = "door"; break;
                 case "K" : fieldType = "key"; break;
+                case "1" : fieldType = "groundStart"; break;
+                case "2" : fieldType = "groundEnd"; break;
                 case "@" : this.player = new Knight(x, y, game, this); break;
                 default : break;
             }
@@ -37,8 +39,10 @@ Level.prototype = {
         ctx.save();
         ctx.fillStyle = "Green";
         var trees_bg = ASSET_MANAGER.getAsset("assets/forest trees.png");
-        var ground = ASSET_MANAGER.getAsset("assets/forest platform2x.png");
-        var belowGround = ASSET_MANAGER.getAsset("assets/forest below platform2x.png");
+        var ground = ASSET_MANAGER.getAsset("assets/forest block.png");
+        var belowGround = ASSET_MANAGER.getAsset("assets/ground block.png");
+        var door = ASSET_MANAGER.getAsset("assets/tree outer door.png");
+        var wall = ASSET_MANAGER.getAsset("assets/tree tile.png");
         
         var scale = Math.ceil((ctx.canvas.height * 2/3)/ trees_bg.height);
         var increment = trees_bg.width * scale;
@@ -52,17 +56,30 @@ Level.prototype = {
             for (var x = 0; x < this.grid[0].length; x += 1) {
                 var fieldType = this.grid[y][x];
                 if (fieldType === "wall") {
-                    ctx.drawImage(belowGround, 0, 0, 50, 50,
+                    ctx.drawImage(wall, 0, 0, 25, 25,
                                     x * this.blockSize, 
                                     y * this.blockSize, 
                                     this.blockSize, this.blockSize);
-                } else if (fieldType === "ground" || fieldType === "door") {
-                   ctx.drawImage(ground, 0, 0, 50, 50, 
+                } else if (fieldType === "ground") {
+                   ctx.drawImage(ground, 0, 0, 25, 25, 
                                  x * this.blockSize, y * this.blockSize,
                                 this.blockSize, this.blockSize);
                 } else if (fieldType === "key") {
                     ctx.font = "48px serif";
-                    ctx.fillText("KEY", x * this.blockSize, y * this.blockSize);
+                    ctx.fillText("Key", x * this.blockSize, y * this.blockSize);
+                } else if (fieldType === "door") {
+                    ctx.drawImage(door, 0, 0, door.width, door.height,
+                                x * this.blockSize,
+                                y * this.blockSize - 50, door.width, door.height);
+                } else if (fieldType === "groundStart") {
+                    var end = y * this.blockSize;
+                    for (var i = y; i < this.grid.length; i += 1) {
+                        var groundEnd = this.grid[y][x];
+                        if (groundEnd === "groundEnd") {end = (i + 1) * this.blockSize;}
+                    }
+                    ctx.drawImage(belowGround, 0, 0, belowGround.width, belowGround.height,
+                                x * this.blockSize, y * this.blockSize,
+                                belowGround.width, end);
                 }
             }
         }
@@ -76,7 +93,6 @@ Level.prototype = {
     
     update : function () {},
     draw : function (ctx, xView, yView) {
-        
         var sky_bg = ASSET_MANAGER.getAsset("assets/forest sky.png");
 			
         var sx, sy, dx, dy;
@@ -105,7 +121,7 @@ Level.prototype = {
         dWidth = sWidth;
         dHeight = sHeight;
         ctx.drawImage(sky_bg, 0, 0, 450, 300, dx, dy, dWidth, dHeight);
-
+        console.log(sx + " " + sy + " " + sWidth + " " + sHeight + " " + dx + " " + dy + " " + dWidth + " " + dHeight);
         ctx.drawImage(this.image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);	
     },
 
