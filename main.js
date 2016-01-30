@@ -9,6 +9,7 @@ ASSET_MANAGER.queueDownload("assets/knight run flipped.png");
 ASSET_MANAGER.queueDownload("assets/knight standing.png");
 ASSET_MANAGER.queueDownload("assets/knight standing flipped.png");
 ASSET_MANAGER.queueDownload("assets/forest platform2x.png");
+ASSET_MANAGER.queueDownload("assets/forest below platform2x.png");
 ASSET_MANAGER.queueDownload("assets/forest sky.png");
 ASSET_MANAGER.queueDownload("assets/forest trees.png");
 
@@ -20,25 +21,25 @@ ASSET_MANAGER.downloadAll(function () {
     var canvas = document.getElementById('gameWorld');
     var ctx = canvas.getContext('2d');
     var simpleLevelPlan = [
-"|                                                                     x             |",
-"|                                                                     x             |",
-"|                                                                     x             |",
-"|                                                                     x             |",
-"|                                                                     x             |",
-"|                                   xxxxxxxxxxxxxxxx   xxxx     xxxx  x             |",
-"|                                       x          x                  x             |",
-"|                        xxx  xxx       x          x       xx         x             |",
-"|                          x            x          x              xxxxx             |",
-"|                          x      xxx   x          x                  x             |",
-"|                    xxx   x     xx     x          x         xxx                    |",
-"|                          x            x          x                                |",
-"|                          x   xxx      x          x              xxxxxxxxxxxxxxxxxx|",
-"|                        xxx            x          x                  x             |",
-"|                          x       xxx  x          x                  x             |",
-"|            x             x            x          x          xxxx    x             |",
-"|            x      xxx    x           xx          x                  x             |",
-"| @         xx      x x  xxxxxxxxxxxxxxxx          xxxxxxxxxxxxxxxxxxxx             |",
-"|xxx     xxx x     x   xx                                                           |",
+"|                                                                     |             |",
+"|                                                                     |             |",
+"|                                                                     |             |",
+"|                                                                     |             |",
+"|                                                                     |             |",
+"|                                   xxxxxxxxxxxxxxxx   xxxx     xxxx  |             |",
+"|                                       ||||||||||||                  |             |",
+"|                        xxx  xxx       ||||||||||||       xx         |             |",
+"|                          |            ||||||||||||              xxxx|             |",
+"|                          |      xxx   ||||||||||||                  |             |",
+"|                    xxx   |     xx     ||||||||||||         xxx                    |",
+"|                          |            ||||||||||||                                |",
+"|                          |   xxx      ||||||||||||              xxxxxxxxxxxxxxxxxx|",
+"|                        xx|            ||||||||||||                  |             |",
+"|                          |       xxx  ||||||||||||                  |             |",
+"|            x             |            ||||||||||||          xxxx    |             |",
+"|            |      xxx    |           x||||||||||||                  |             |",
+"| @         x|      | |  xx|xxxxxxxxxxxx||||||||||||xxxxxxxxxxxxxxxxxxx             |",
+"|xxx     xxx |     x   xx                                                           |",
 "|   xxxxx    xxxxxxx                                                                |"
     ];
 
