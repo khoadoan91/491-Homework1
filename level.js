@@ -38,6 +38,7 @@ Level.prototype = {
         ctx.fillStyle = "Green";
         var trees_bg = ASSET_MANAGER.getAsset("assets/forest trees.png");
         var ground = ASSET_MANAGER.getAsset("assets/forest platform2x.png");
+        var belowGround = ASSET_MANAGER.getAsset("assets/forest below platform2x.png");
         
         var scale = Math.ceil((ctx.canvas.height * 2/3)/ trees_bg.height);
         var increment = trees_bg.width * scale;
@@ -51,7 +52,8 @@ Level.prototype = {
             for (var x = 0; x < this.grid[0].length; x += 1) {
                 var fieldType = this.grid[y][x];
                 if (fieldType === "wall") {
-                    ctx.fillRect(x * this.blockSize, 
+                    ctx.drawImage(belowGround, 0, 0, 50, 50,
+                                    x * this.blockSize, 
                                     y * this.blockSize, 
                                     this.blockSize, this.blockSize);
                 } else if (fieldType === "ground" || fieldType === "door") {
