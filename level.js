@@ -50,11 +50,11 @@ Level.prototype = {
         for (var y = 0; y < this.grid.length; y += 1) {
             for (var x = 0; x < this.grid[0].length; x += 1) {
                 var fieldType = this.grid[y][x];
-                if (fieldType === "wall" || fieldType === "door") {
+                if (fieldType === "wall") {
                     ctx.fillRect(x * this.blockSize, 
                                     y * this.blockSize, 
                                     this.blockSize, this.blockSize);
-                } else if (fieldType === "ground") {
+                } else if (fieldType === "ground" || fieldType === "door") {
                    ctx.drawImage(ground, 0, 0, 50, 50, 
                                  x * this.blockSize, y * this.blockSize,
                                 this.blockSize, this.blockSize);
