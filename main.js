@@ -8,8 +8,10 @@ ASSET_MANAGER.queueDownload("assets/knight run.png");
 ASSET_MANAGER.queueDownload("assets/knight run flipped.png");
 ASSET_MANAGER.queueDownload("assets/knight standing.png");
 ASSET_MANAGER.queueDownload("assets/knight standing flipped.png");
-ASSET_MANAGER.queueDownload("assets/forest platform2x.png");
-ASSET_MANAGER.queueDownload("assets/forest below platform2x.png");
+ASSET_MANAGER.queueDownload("assets/forest block.png");
+ASSET_MANAGER.queueDownload("assets/ground block.png");
+ASSET_MANAGER.queueDownload("assets/tree outer door.png");
+ASSET_MANAGER.queueDownload("assets/tree tile.png");
 ASSET_MANAGER.queueDownload("assets/forest sky.png");
 ASSET_MANAGER.queueDownload("assets/forest trees.png");
 
@@ -26,21 +28,33 @@ ASSET_MANAGER.downloadAll(function () {
 "|                                                                     |             |",
 "|                                                                     |             |",
 "|                                                                     |             |",
+"|                                                                     |             |",
+"|                                                                     |             |",
+"|                                                                     |             |",
+"|                                                                     |             |",
+"|                                                                     |             |",
+"|                                                                     |             |",
+"|                                                                     |             |",
+"|                                                                     |             |",
+"|                                                                     |             |",
+"|                                                                     |             |",
+"|                                                                     |             |",
+"|                                                                     |             |",
 "|                                   xxxxxxxxxxxxxxxx   xxxx     xxxx  |             |",
-"|                                       ||||||||||||                  |             |",
-"|                        xxx  xxx       ||||||||||||       xx         |             |",
-"|                          |            ||||||||||||              xxxx|             |",
-"|                          |      xxx   ||||||||||||                  |             |",
-"|                    xxx   |     xx     ||||||||||||         xxx                    |",
-"|                          |            ||||||||||||                                |",
-"|                          |   xxx      ||||||||||||              xxxxxxxxxxxxxxxxxx|",
-"|                        xx|            ||||||||||||                  |             |",
-"|                          |       xxx  ||||||||||||                  |             |",
-"|            x             |            ||||||||||||          xxxx    |             |",
-"|            |      xxx    |           x||||||||||||                  |             |",
-"| @         x|      | |  xx|xxxxxxxxxxxx||||||||||||xxxxxxxxxxxxxxxxxxx             |",
+"|                                       |1111111111|                  |             |",
+"|      @                 xxx  xx        |          |       xx         |             |",
+"|                          |            |          |              xxxx|             |",
+"|                          |      xxx   |          |                  |             |",
+"|                    xxx   |            |          |         xxx                    |",
+"|                          |            |          |                                D",
+"|                          |   xx       |          |              xxxxxxxxxxxxxxxxxx|",
+"|                        xx|                       |                  |             |",
+"|                          |       xx              |                  |             |",
+"|            x             |            D          |          xxxx    |             |",
+"|            |      xxx    |           x|          |                  |             |",
+"|           x|      | |  xx|xxxxxxxxxxxx|2222222222|xxxxxxxxxxxxxxxxxx|             |",
 "|xxx     xxx |     x   xx                                                           |",
-"|   xxxxx    xxxxxxx                                                                |"
+"|   xxxxx    |xxxxxx                                                                |"
     ];
 
     var game = new GameEngine(ctx);
@@ -58,7 +72,7 @@ ASSET_MANAGER.downloadAll(function () {
 
 function Entity (x, y, width, height) {
     // suppose there is an image about the ground with the size
-    var blockSize = 42;
+    var blockSize = 25;
     this.currentX_px = x * blockSize;
     this.currentY_px = y * blockSize;
     this.width = width;
