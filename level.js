@@ -1,6 +1,6 @@
 function Level (map, game) {
     // suppose there is an image about the ground with the size
-    this.blockSize = 25;
+    this.blockSize = 50;
     this.width = map[0].length;
     this.height = map.length;
     this.width_px = this.width * this.blockSize;
@@ -31,15 +31,24 @@ function Level (map, game) {
 }
 
 Level.prototype = {
+    // addHiddenMap : function (hiddenMap) {
+    //     var width = hiddenMap[0].length;
+    //     var height = hiddenMap.length;
+    //     if (this.width !== width || this.height !== height) {
+    //         console.error("Fail to add hiden map"); 
+    //         return;
+    //     }
+        
+    // },
+    
     generate : function () {
         var ctx = document.createElement("canvas").getContext('2d');
         ctx.canvas.height = this.height_px;
         ctx.canvas.width = this.width_px;
 
         ctx.save();
-        ctx.fillStyle = "Green";
         var trees_bg = ASSET_MANAGER.getAsset("assets/forest trees.png");
-        var ground = ASSET_MANAGER.getAsset("assets/forest block.png");
+        var ground = ASSET_MANAGER.getAsset("assets/forest ground block.png");
         var belowGround = ASSET_MANAGER.getAsset("assets/ground block.png");
         var door = ASSET_MANAGER.getAsset("assets/tree outer door.png");
         var wall = ASSET_MANAGER.getAsset("assets/tree tile.png");
@@ -56,12 +65,12 @@ Level.prototype = {
             for (var x = 0; x < this.grid[0].length; x += 1) {
                 var fieldType = this.grid[y][x];
                 if (fieldType === "wall") {
-                    ctx.drawImage(wall, 0, 0, 25, 25,
+                    ctx.drawImage(wall, 0, 0, wall.width, wall.height,
                                     x * this.blockSize, 
                                     y * this.blockSize, 
                                     this.blockSize, this.blockSize);
                 } else if (fieldType === "ground") {
-                   ctx.drawImage(ground, 0, 0, 25, 25, 
+                   ctx.drawImage(ground, 0, 0, ground.width, ground.height, 
                                  x * this.blockSize, y * this.blockSize,
                                 this.blockSize, this.blockSize);
                 } else if (fieldType === "key") {
@@ -70,12 +79,13 @@ Level.prototype = {
                 } else if (fieldType === "door") {
                     ctx.drawImage(door, 0, 0, door.width, door.height,
                                 x * this.blockSize,
-                                y * this.blockSize - 50, door.width, door.height);
+                                y * this.blockSize - 100, door.width, door.height);
                 } else if (fieldType === "groundStart") {
-                    var end = y * this.blockSize;
-                    for (var i = y; i < this.grid.length; i += 1) {
-                        var groundEnd = this.grid[y][x];
-                        if (groundEnd === "groundEnd") {end = (i + 1) * this.blockSize;}
+                    var end = 50;
+                    for (var i = y + 1; i < this.grid.length; i += 1) {
+                        end += 50;
+                        var groundEnd = this.grid[i][x];
+                        if (groundEnd === "groundEnd") {break;}
                     }
                     ctx.drawImage(belowGround, 0, 0, belowGround.width, belowGround.height,
                                 x * this.blockSize, y * this.blockSize,
@@ -121,7 +131,6 @@ Level.prototype = {
         dWidth = sWidth;
         dHeight = sHeight;
         ctx.drawImage(sky_bg, 0, 0, 450, 300, dx, dy, dWidth, dHeight);
-        console.log(sx + " " + sy + " " + sWidth + " " + sHeight + " " + dx + " " + dy + " " + dWidth + " " + dHeight);
         ctx.drawImage(this.image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);	
     },
 
@@ -134,11 +143,19 @@ Level.prototype = {
              return "wall";
          }
 
-        for (var y = top; y <= bottom; y += 1) {
+        for (var y = bottom; y >= top; y -= 1) {
             for (var x = left; x <= right; x += 1) {
                 var fieldType = this.grid[y][x];
-                if (fieldType) return fieldType;
+                if (fieldType) {return fieldType;}
             }
         }
     }
+}
+
+
+function Door (x, y, level, game) {
+    Entity.call(this, x, y, 54, 54);
+    this.game = game;
+    this.level = level;
+    this.isOpen = false;
 }

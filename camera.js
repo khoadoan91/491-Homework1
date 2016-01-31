@@ -104,7 +104,6 @@ Camera.prototype = {
             }						
 
         }
-        console.log(this.xView + " " + this.yView + " " + this.worldRect.bottom + " " + this.worldRect.top);		
         // update viewportRect
         this.viewportRect.set(this.xView, this.yView);
 
@@ -119,6 +118,5 @@ Camera.prototype = {
             if(this.viewportRect.bottom > this.worldRect.bottom)					
                 this.yView = this.worldRect.bottom - this.hView;
         }
-        console.log(this.xView + " " + this.yView);
     },
 }
