@@ -8,7 +8,7 @@ ASSET_MANAGER.queueDownload("assets/knight run.png");
 ASSET_MANAGER.queueDownload("assets/knight run flipped.png");
 ASSET_MANAGER.queueDownload("assets/knight standing.png");
 ASSET_MANAGER.queueDownload("assets/knight standing flipped.png");
-ASSET_MANAGER.queueDownload("assets/forest block.png");
+ASSET_MANAGER.queueDownload("assets/forest ground block.png");
 ASSET_MANAGER.queueDownload("assets/ground block.png");
 ASSET_MANAGER.queueDownload("assets/tree outer door.png");
 ASSET_MANAGER.queueDownload("assets/tree tile.png");
@@ -28,30 +28,18 @@ ASSET_MANAGER.downloadAll(function () {
 "|                                                                     |             |",
 "|                                                                     |             |",
 "|                                                                     |             |",
-"|                                                                     |             |",
-"|                                                                     |             |",
-"|                                                                     |             |",
-"|                                                                     |             |",
-"|                                                                     |             |",
-"|                                                                     |             |",
-"|                                                                     |             |",
-"|                                                                     |             |",
-"|                                                                     |             |",
-"|                                                                     |             |",
-"|                                                                     |             |",
-"|                                                                     |             |",
 "|                                   xxxxxxxxxxxxxxxx   xxxx     xxxx  |             |",
 "|                                       |1111111111|                  |             |",
-"|      @                 xxx  xx        |          |       xx         |             |",
+"|                        xxx  xx        |          |       xx         |             |",
 "|                          |            |          |              xxxx|             |",
 "|                          |      xxx   |          |                  |             |",
 "|                    xxx   |            |          |         xxx                    |",
 "|                          |            |          |                                D",
 "|                          |   xx       |          |              xxxxxxxxxxxxxxxxxx|",
-"|                        xx|                       |                  |             |",
-"|                          |       xx              |                  |             |",
-"|            x             |            D          |          xxxx    |             |",
-"|            |      xxx    |           x|          |                  |             |",
+"|                        xx|            |          |                  |             |",
+"|                          |       xx   |          |                  |             |",
+"|            x             |            |          |          xxxx    |             |",
+"|  @         |      xxx    |            D          |                  |             |",
 "|           x|      | |  xx|xxxxxxxxxxxx|2222222222|xxxxxxxxxxxxxxxxxx|             |",
 "|xxx     xxx |     x   xx                                                           |",
 "|   xxxxx    |xxxxxx                                                                |"
@@ -72,7 +60,7 @@ ASSET_MANAGER.downloadAll(function () {
 
 function Entity (x, y, width, height) {
     // suppose there is an image about the ground with the size
-    var blockSize = 25;
+    var blockSize = 50;
     this.currentX_px = x * blockSize;
     this.currentY_px = y * blockSize;
     this.width = width;
@@ -138,6 +126,9 @@ Knight.prototype.moveX = function () {
     var obstacle = this.level.obstacleAt(tempX, this.currentY_px, this.width, this.height);
     if (!obstacle) {
         this.currentX_px = tempX;
+    } else if (obstacle === "door") {
+        // TODO activate the button.
+        this.currentX_px = tempX;
     }
 };
 
@@ -147,9 +138,12 @@ Knight.prototype.moveY = function () {
     }
     var tempY = this.currentY_px + this.yVelocity;
     var obstacle = this.level.obstacleAt(this.currentX_px, tempY, this.width, this.height);
+    console.log(this.currentY_px);
     if (!obstacle) {
         this.currentY_px = tempY;
-    } else {
+    } else if (obstacle === "door") {
+        this.currentY_px = tempY;
+    }else {
         if (this.game.keyStatus["w"] && this.yVelocity > 0) {
             this.isJumping = true; this.isStanding = false;
             this.yVelocity = -15;

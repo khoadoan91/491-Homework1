@@ -107,9 +107,7 @@ GameEngine.prototype = {
                 this.entities.splice(i, 1);
             }
         }
-        console.log(this.camera);
         this.camera.update();
-        console.log(this.camera);
     },
 
     loop : function () {
