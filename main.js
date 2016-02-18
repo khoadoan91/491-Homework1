@@ -12,6 +12,7 @@ ASSET_MANAGER.queueDownload("assets/forest ground block.png");
 ASSET_MANAGER.queueDownload("assets/ground block.png");
 ASSET_MANAGER.queueDownload("assets/tree outer door.png");
 ASSET_MANAGER.queueDownload("assets/tree tile.png");
+ASSET_MANAGER.queueDownload("assets/tree tile inner.png");
 ASSET_MANAGER.queueDownload("assets/forest sky.png");
 ASSET_MANAGER.queueDownload("assets/forest trees.png");
 
@@ -29,18 +30,18 @@ ASSET_MANAGER.downloadAll(function () {
 "|                                                                     |             |",
 "|                                                                     |             |",
 "|                                   xxxxxxxxxxxxxxxx   xxxx     xxxx  |             |",
-"|                                       |1111111111|                  |             |",
-"|                        xxx  xx        |          |       xx         |             |",
-"|                          |            |          |              xxxx|             |",
-"|                          |      xxx   |          |                  |             |",
-"|                    xxx   |            |          |         xxx                    |",
-"|                          |            |          |                                D",
-"|                          |   xx       |          |              xxxxxxxxxxxxxxxxxx|",
-"|                        xx|            |          |                  |             |",
-"|                          |       xx   |          |                  |             |",
-"|            x             |            |          |          xxxx    |             |",
-"|  @         |      xxx    |            D          |                  |             |",
-"|           x|      | |  xx|xxxxxxxxxxxx|2222222222|xxxxxxxxxxxxxxxxxx|             |",
+"|                                       |0000000000|                  |             |",
+"|                        xxx  xx        |0000000000|       xx         |             |",
+"|                          |            |0000000000|              xxxx|             |",
+"|                          |      xxx   |000000xxxx|                  |             |",
+"|                    xxx   |            |0000000000|         xxx                    |",
+"|                          |            |xxx0000000|                                D",
+"|                          |   xx       |0000000000|              xxxxxxxxxxxxxxxxxx|",
+"|                        xx|            |0000000000|                  |             |",
+"|                          |       xx   |000000xxxx|                  |             |",
+"|            x             |  @         |0000000000|          xxxx    |             |",
+"|            |      xxx    |            D0000000000|                  |             |",
+"|           x|      | |  xx|xxxxxxxxxxxx|xxxxxxxxx0|xxxxxxxxxxxxxxxxxx|             |",
 "|xxx     xxx |     x   xx                                                           |",
 "|   xxxxx    |xxxxxx                                                                |"
     ];
@@ -58,11 +59,11 @@ ASSET_MANAGER.downloadAll(function () {
     
 });
 
+var BLOCK_SIZE = 50;
+
 function Entity (x, y, width, height) {
-    // suppose there is an image about the ground with the size
-    var blockSize = 50;
-    this.currentX_px = x * blockSize;
-    this.currentY_px = y * blockSize;
+    this.currentX_px = x * BLOCK_SIZE;
+    this.currentY_px = y * BLOCK_SIZE;
     this.width = width;
     this.height = height;
 }
@@ -126,8 +127,9 @@ Knight.prototype.moveX = function () {
     var obstacle = this.level.obstacleAt(tempX, this.currentY_px, this.width, this.height);
     if (!obstacle) {
         this.currentX_px = tempX;
-    } else if (obstacle === "door") {
+    } else if (obstacle.fieldType === "door") {
         // TODO activate the button.
+        this.level.displayHidden(this.currentX_px, this.currentY_px, obstacle);
         this.currentX_px = tempX;
     }
 };
@@ -138,12 +140,9 @@ Knight.prototype.moveY = function () {
     }
     var tempY = this.currentY_px + this.yVelocity;
     var obstacle = this.level.obstacleAt(this.currentX_px, tempY, this.width, this.height);
-    console.log(this.currentY_px);
-    if (!obstacle) {
+    if (!obstacle || obstacle.fieldType === "door") {
         this.currentY_px = tempY;
-    } else if (obstacle === "door") {
-        this.currentY_px = tempY;
-    }else {
+    } else {
         if (this.game.keyStatus["w"] && this.yVelocity > 0) {
             this.isJumping = true; this.isStanding = false;
             this.yVelocity = -15;

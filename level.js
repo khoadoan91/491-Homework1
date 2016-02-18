@@ -9,6 +9,9 @@ function Level (map, game) {
     console.log(this.width_px + "x" + this.height_px);
     this.grid = [];
     this.image = null;
+    this.foreground = new Foreground();
+    this.door = [];
+    this.showHidden = false;
     
     for (var y = 0; y < this.height; y += 1) {
         var line = map[y], gridLine = [];
@@ -17,10 +20,9 @@ function Level (map, game) {
             switch (ch) {
                 case "x" : fieldType = "ground"; break;
                 case "|" : fieldType = "wall"; break;
-                case "D" : fieldType = "door"; break;
+                case "D" : fieldType = "door"; this.door.push(new Door(x, y)); break;
                 case "K" : fieldType = "key"; break;
-                case "1" : fieldType = "groundStart"; break;
-                case "2" : fieldType = "groundEnd"; break;
+                case "0" : fieldType = "hidden"; this.foreground.set(x, y); break;
                 case "@" : this.player = new Knight(x, y, game, this); break;
                 default : break;
             }
@@ -31,17 +33,16 @@ function Level (map, game) {
 }
 
 Level.prototype = {
-    // addHiddenMap : function (hiddenMap) {
-    //     var width = hiddenMap[0].length;
-    //     var height = hiddenMap.length;
-    //     if (this.width !== width || this.height !== height) {
-    //         console.error("Fail to add hiden map"); 
-    //         return;
-    //     }
-        
-    // },
+    displayHidden : function (x, y, door) {
+        if (door.currentX_px < x && door.currentY_px > y) {
+            this.showHidden = true;
+        } else if (door.currentX_px > x && door.currentY_px > y) {
+            this.showHidden = false;
+        }
+    },
     
     generate : function () {
+        this.foreground.findItselfOnMap();
         var ctx = document.createElement("canvas").getContext('2d');
         ctx.canvas.height = this.height_px;
         ctx.canvas.width = this.width_px;
@@ -49,7 +50,7 @@ Level.prototype = {
         ctx.save();
         var trees_bg = ASSET_MANAGER.getAsset("assets/forest trees.png");
         var ground = ASSET_MANAGER.getAsset("assets/forest ground block.png");
-        var belowGround = ASSET_MANAGER.getAsset("assets/ground block.png");
+        var innerGround = ASSET_MANAGER.getAsset("assets/tree tile inner.png");
         var door = ASSET_MANAGER.getAsset("assets/tree outer door.png");
         var wall = ASSET_MANAGER.getAsset("assets/tree tile.png");
         
@@ -80,16 +81,10 @@ Level.prototype = {
                     ctx.drawImage(door, 0, 0, door.width, door.height,
                                 x * this.blockSize,
                                 y * this.blockSize - 100, door.width, door.height);
-                } else if (fieldType === "groundStart") {
-                    var end = 50;
-                    for (var i = y + 1; i < this.grid.length; i += 1) {
-                        end += 50;
-                        var groundEnd = this.grid[i][x];
-                        if (groundEnd === "groundEnd") {break;}
-                    }
-                    ctx.drawImage(belowGround, 0, 0, belowGround.width, belowGround.height,
+                } else if (fieldType === "hidden") {
+                    ctx.drawImage(innerGround, 0, 0, innerGround.width, innerGround.height,
                                 x * this.blockSize, y * this.blockSize,
-                                belowGround.width, end);
+                                innerGround.width, innerGround.height);
                 }
             }
         }
@@ -132,6 +127,13 @@ Level.prototype = {
         dHeight = sHeight;
         ctx.drawImage(sky_bg, 0, 0, 450, 300, dx, dy, dWidth, dHeight);
         ctx.drawImage(this.image, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);	
+        
+        if (!this.showHidden) {
+            var fg = ASSET_MANAGER.getAsset("assets/ground block.png");
+            ctx.drawImage(fg, 0, 0, fg.width, fg.height, 
+                    this.foreground.left - xView, this.foreground.top - yView,
+                    this.foreground.width, this.foreground.height);
+        }
     },
 
     obstacleAt : function (x, y, width, height) {
@@ -146,16 +148,55 @@ Level.prototype = {
         for (var y = bottom; y >= top; y -= 1) {
             for (var x = left; x <= right; x += 1) {
                 var fieldType = this.grid[y][x];
+                if (fieldType === "hidden") {continue};
+                if (fieldType === "door") {
+                    for (var i = 0; i < this.door.length; i += 1) {
+                        if (this.door[i].x === x) {return this.door[i]};
+                    }
+                }
                 if (fieldType) {return fieldType;}
             }
         }
     }
 }
 
-
-function Door (x, y, level, game) {
-    Entity.call(this, x, y, 54, 54);
-    this.game = game;
-    this.level = level;
-    this.isOpen = false;
+function Foreground (x, y, xEnd, yEnd) {
+    this.xStart = x || null;
+    this.yStart = y || null;
+    this.yEnd = yEnd || null;
+    this.xEnd = xEnd || null;
 }
+
+Foreground.prototype = {
+    set : function (x, y) {
+        if (this.xStart === null || this.xStart > x) {
+            this.xStart = x;
+        }
+        if (this.yStart === null || this.yStart > y) {
+            this.yStart = y;
+        }
+        if (this.xEnd === null || this.xEnd < x) {
+            this.xEnd = x;
+        }
+        if (this.yEnd === null || this.yEnd < y) {
+            this.yEnd = y;
+        }
+    },
+    
+    findItselfOnMap : function () {
+        this.left = this.xStart * BLOCK_SIZE;
+        this.right = (this.xEnd + 1) * BLOCK_SIZE;
+        this.top = this.yStart * BLOCK_SIZE;
+        this.bottom = (this.yEnd + 1) * BLOCK_SIZE;
+        this.width = this.right - this.left;
+        this.height = this.bottom - this.top;
+    }
+}
+
+function Door (x, y) {
+    this.x = x;
+    this.y = y;
+    Entity.call(this, x, y, 50, 100);
+}
+
+Door.prototype.fieldType = "door";
