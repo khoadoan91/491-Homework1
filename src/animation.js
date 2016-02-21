@@ -5,19 +5,23 @@
  * frameDuration: The length in time that each frame should last.
  * loop: Set to true if the animation should repeat once it is over.
  */
-function Animation(spriteSheet, frameWidth, frameHeight, frameDuration, loop) {
-    this.elapsedTime = 0;   
+function Animation(spriteSheet, frameWidth, frameHeight, frameDuration, loop, offsetX, offsetY) {
+    this.elapsedTime = 0;
     this.frames = [];
     this.loop = loop;
     this.spriteSheet = spriteSheet;
     this.frameWidth = frameWidth;
     this.frameHeight = frameHeight;
     this.frameDuration = frameDuration;
+    this.offsetX = offsetX;
+    this.offsetY = offsetY;
+    if (this.offsetX === undefined) this.offsetX = 0;
+    if (this.offsetY === undefined) this.offsetY = 0;
 }
 
 Animation.prototype = {
     /**
-     * Add several frames in a series to the animation 
+     * Add several frames in a series to the animation
      * (will scan forward or backward - Default is forward).
      * Will automatically skip to the next row if it reaches the end or the start of a column.
      */
@@ -26,9 +30,8 @@ Animation.prototype = {
         var currentY = startY;
         var frames = numFrames || 1;
         //Scan through the spritesheet, adding frames at each index as we go.
-        //Checks if we are at the end of a column, but not if we are at the end of all rows. TODO?
         for (var i = 0; i < frames; i += 1) {
-            if (scanForward === false) {
+            if (scanForward === false) {    // scan backward
                 if (currentX < 0) {
                     currentX = this.spriteSheet.width - this.frameWidth;
                     currentY -= this.frameHeight;
@@ -45,34 +48,28 @@ Animation.prototype = {
             }
         }
     },
-    
+
     drawFrame : function (tick, ctx, x, y) {
         this.elapsedTime += tick;
         if (this.isDone()) {
             if (this.loop) {
                 this.elapsedTime = 0;
-            } else {
-                return;
             }
         }
         var curFrame = this.currentFrame();
         var xStart = this.frames[curFrame][0];
         var yStart = this.frames[curFrame][1];
-        ctx.drawImage(this.spriteSheet, 
-                      xStart, yStart, 
+        ctx.drawImage(this.spriteSheet,
+                      xStart, yStart,
                       this.frameWidth, this.frameHeight,
-                      x, y,
+                      x + this.offsetX, y + this.offsetY,
                       this.frameWidth, this.frameHeight);
     },
-    
+
     isDone : function () {
-        // if (this.loop) {  
-        //     return (this.currentFrame() >= this.frames.length);
-        // } else {
-            return this.currentFrame() === this.frames.length;
-        // }
+        return this.currentFrame() + 1 >= this.frames.length;
     },
-    
+
     currentFrame : function () {
         return Math.floor(this.elapsedTime / this.frameDuration);
     }

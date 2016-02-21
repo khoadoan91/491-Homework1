@@ -5,11 +5,11 @@ function Timer() {
 }
 
 Timer.prototype.tick = function () {
-     
+
     var wallCurrent = Date.now(),
         wallDelta = (wallCurrent - this.wallLastTimestamp) / 1000,
         gameDelta = Math.min(wallDelta, this.maxStep);
-    
+
     this.wallLastTimestamp = wallCurrent;
     this.gameTime += gameDelta;
     return gameDelta;
@@ -19,7 +19,7 @@ var KEY_CODES = {
     65 : 'a',
     68 : 'd',
     87 : 'w',
-    74 : 'j'
+    32 : 'space'
 };
 
 function GameEngine(ctx) {
@@ -73,17 +73,16 @@ GameEngine.prototype = {
             }
         }, false);
     },
-    
+
     addPlayer : function (player) {
         this.player = player;
     },
 
     addEntity : function (entity) {
-         
         this.entities.push(entity);
     },
 
-    draw : function () { 
+    draw : function () {
         var i;
         this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
         this.ctx.save();
@@ -95,7 +94,7 @@ GameEngine.prototype = {
     },
 
     update : function () {
-         
+
         var entitiesCount = this.entities.length, i, entity;
         this.player.update();
         for (i = 0; i < entitiesCount; i += 1) {
@@ -103,7 +102,7 @@ GameEngine.prototype = {
 
             if (!entity.removeFromWorld) {
                 // console.log(entity);
-                entity.update(this.player.currentX_px, this.player.currentY_px, this.player.width, this.player.height);
+                entity.update(this.clockTick, this.player.currentX_px, this.player.currentY_px, this.player.width, this.player.height);
             }
         }
 
