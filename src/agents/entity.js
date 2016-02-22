@@ -4,9 +4,8 @@ var GAME_CONSTANT = {
     DAMAGE : 2,
     MAX_HEALTH : 20,
     INJURE_TIME : 2,
-    
-    ARCHER_HEALTH : 4,
-    SHOOTING_TIME : 2,
+    INVULNERABLE_TIME : 0.68,
+
     SKELETON_HEALTH : 6,
     
     //Animation Constants

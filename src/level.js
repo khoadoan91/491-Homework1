@@ -180,7 +180,7 @@ Level.prototype = {
                 player.currentX_px < monster.currentX_px + monster.width &&
                 player.currentY_px + player.height > monster.currentY_px &&
                 player.currentY_px < monster.currentY_px + monster.height)
-                return monster;
+                return monster
         }
     }
 }

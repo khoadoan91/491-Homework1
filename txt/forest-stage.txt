@@ -10,11 +10,11 @@
                                     |        |                              xxxx     |
                                     |xxx     |                                       |
                                     |        |                                       |
-                                    |  *                     xxx        xxx          |
+                                    |                        xxx        xxx          |
                                     |xxx                xxx       xxx        xx      |
-                                    |                   xo                           |
+                                    |                   x                            |
                                     |      xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx       |
-                                    |   *    |                                     * |
+                                    |        |                                       |
                                     |   x    |                                    xxx|
                                     |   xx   |                                       |
                                     |   xx   |                                       |
@@ -34,7 +34,8 @@
          xx   | |      *       |                             |                       |
               | |xxxxxxxxxxxxxxx                             |                       |
               |                                              |                       |
-@    x       o|                                              |                       |
+@    x     !! |                                              |                       |
 xxxxx|xxxxxxxxx                                              |                       |
                                                              |                       |
-                                                             |xxxxxxxxxxxxxxxxxxxxxxxx
+                                                             |xxxxxxxxxxxxxxxxxxxxxxx|
+>>>>>>> finish atk hit box
