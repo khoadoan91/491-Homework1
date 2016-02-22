@@ -4,9 +4,14 @@ function Knight (x, y, game, level) {
     this.game = game;
     this.xVelocity = 0;
     this.yVelocity = 0;
-    this.followers = [];
     this.checkPointX = this.currentX_px;
     this.checkPointY = this.currentY_px;
+    this.atkHitBoxesRight = new SwordHitBox(3, -3);
+    this.atkHitBoxesRight.addBox(this.currentX_px, 5, this.currentY_px, - 20, 60, 20); // swordbox top on right
+    this.atkHitBoxesRight.addBox(this.currentX_px, 40, this.currentY_px, 0, 47, 50); // swordbox right
+    this.atkHitBoxesLeft = new SwordHitBox(-3, -3);
+    this.atkHitBoxesLeft.addBox(this.currentX_px, - 30, this.currentY_px, -20, 60, 20); // swordbox top of left
+    this.atkHitBoxesLeft.addBox(this.currentX_px, - 45, this.currentY_px, 0, 47, 50); // swordbox left
 
     this.health = GAME_CONSTANT.MAX_HEALTH;
 
@@ -22,7 +27,7 @@ function Knight (x, y, game, level) {
 
     var KnightAttackRight = new Animation(AM.getAsset("./img/knight/knight attack.png"), 90, 70, 0.085, false, 0, -20);
     KnightAttackRight.addFrame(0, 0, 8);
-    var KnightAttackLeft = new Animation(AM.getAsset("./img/knight/knight attack flipped.png"), 90, 70, 0.085, false, -40, -20);
+    var KnightAttackLeft = new Animation(AM.getAsset("./img/knight/knight attack flipped.png"), 90, 70, 0.085, false, -49, -20);
     KnightAttackLeft.addFrame(0, 0, 8);
 
     // var KnightHitRight = new Animation(AM.getAsset("./img/knight/knight hit draft.png"), 48, 50, 0.10, true);
@@ -65,38 +70,6 @@ function Knight (x, y, game, level) {
 }
 
 Knight.prototype = {
-    updateFollowers : function (x, y) {
-        for (var i = this.followers.length - 1; i > 0; i -= 1) {
-            if (this.isRight) {
-                this.followers[i].currentX_px = this.followers[i - 1].currentX_px - 25;
-            } else {
-                this.followers[i].currentX_px = this.followers[i - 1].currentX_px + 25;
-            }
-            if (this.yVelocity > 0) {
-                this.followers[i].currentY_px = this.followers[i - 1].currentY_px - 10;
-            } else if (this.yVelocity < 0) {
-                this.followers[i].currentY_px = this.followers[i - 1].currentY_px + 10;
-            } else {
-                this.followers[i].currentY_px = this.followers[i - 1].currentY_px;
-            }
-
-        }
-        if (this.followers.length > 0) {
-            if (this.isRight) {
-                this.followers[0].currentX_px = x - 25;
-            } else {
-                this.followers[0].currentX_px = x + 25;
-            }
-            if (this.yVelocity > 0) {
-                this.followers[0].currentY_px = y - 10;
-            } else if (this.yVelocity < 0) {
-                this.followers[0].currentY_px = y + 10;
-            } else {
-                this.followers[0].currentY_px = y;
-            }
-        }
-    },
-
     moveX : function () {
         var oldX = this.currentX_px;
         if (this.controllable) {
@@ -167,7 +140,7 @@ Knight.prototype = {
         return oldY;
     },
 
-    dealWithMonster : function (monster) {
+    touchEnemy : function (monster) {
         if (monster instanceof HealingStuff) {
             if (this.health < GAME_CONSTANT.MAX_HEALTH) {
                 monster.removeFromWorld = true;
@@ -179,39 +152,22 @@ Knight.prototype = {
         } else if (monster instanceof Arrow) {
             monster.removeFromWorld = true;
             this.health -= 1;
-        } else if (monster instanceof Wisp) {
-            monster.isFollowing = true;
-            monster.currentY_px = this.currentY_px;
-            if (this.isRight) {
-                monster.currentX_px = this.currentX_px - 25 * (this.followers.length + 1);
-            } else {
-                monster.currentX_px = this.currentX_px + 25 * (this.followers.length + 1);
-            }
-            this.followers.push(monster);
-            console.log(monster.currentX_px + " " + monster.currentY_px + " " + this.currentX_px + " " + this.currentY_px);
         } else {
-            if (this.isAttacking) {
-                // TODO deal with the monster attacks at behind.
-                monster.health -= GAME_CONSTANT.DAMAGE;
-                if (monster.health < 0) {
-                    monster.removeFromWorld = true;
-                }
-            } else {
-                if (this.health > 0 && !this.isInjure) {
-                    this.health -= GAME_CONSTANT.DAMAGE;
-                    this.isInjure = true;
-                    // TODO make some effects when the knight touches the monster.
-                }
+            if (this.health > 0 && !this.isInjure && !monster.isBeingAttacked) {
+                this.health -= GAME_CONSTANT.DAMAGE;
+                this.isInjure = true;
+                // TODO make some effects when the knight touches the monster.
             }
+
         }
     },
 
     update : function (tick) {
         var oldX = this.moveX();
         var oldY = this.moveY();
-        if (oldX !== this.currentX_px || oldY !== this.currentY_px) {
-            this.updateFollowers(oldX, oldY);
-        }
+        // if (oldX !== this.currentX_px || oldY !== this.currentY_px) {
+        //     this.updateFollowers(oldX, oldY);
+        // }
         if (this.game.keyStatus['space'] && this.yVelocity === 0) {
             this.controllable = false;
             this.isAttacking = true;
@@ -219,6 +175,16 @@ Knight.prototype = {
                 this.currentAnimation = GAME_CONSTANT.ATTACKING_RIGHT_ANIMATION;
             } else {
                 this.currentAnimation = GAME_CONSTANT.ATTACKING_LEFT_ANIMATION;
+            }
+        }
+        if (this.isAttacking) {
+            if (this.animationList[this.currentAnimation].currentFrame() >= 1 &&
+            this.animationList[this.currentAnimation].currentFrame() <= 4) {
+                if (this.isRight) {
+                    this.atkHitBoxesRight.hit(this.level.enemies);
+                } else {
+                    this.atkHitBoxesLeft.hit(this.level.enemies);
+                }
             }
         }
         if (this.animationList[GAME_CONSTANT.ATTACKING_RIGHT_ANIMATION].isDone() ||
@@ -230,8 +196,7 @@ Knight.prototype = {
         }
         var monster = this.level.enemyAt(this);
         if (monster) {
-            // console.log(monster);
-            this.dealWithMonster(monster);
+            this.touchEnemy(monster);
         }
         if (this.isInjure) {
             this.injureTime -= tick;
@@ -246,24 +211,101 @@ Knight.prototype = {
             this.currentX_px = this.checkPointX;
             this.currentY_px = this.checkPointY;
             this.health = GAME_CONSTANT.MAX_HEALTH;
-            this.followers = [];
         }
+        this.atkHitBoxesRight.update(this.currentX_px, this.currentY_px);
+        this.atkHitBoxesLeft.update(this.currentX_px, this.currentY_px);
         Entity.prototype.update.call(this);
+    },
+
+    drawRoundedRect : function (ctx, x, y, w, h) {
+        var r = 10;
+        ctx.beginPath();
+        ctx.moveTo(x+r, y);
+        ctx.lineTo(x+w-r, y);
+        ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+        ctx.lineTo(x+w, y+h-r);
+        ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+        ctx.lineTo(x+r, y+h);
+        ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+        ctx.lineTo(x, y+r);
+        ctx.quadraticCurveTo(x, y, x+r, y);
+        ctx.fill();
     },
 
     draw : function (ctx, cameraRect, tick) {
         // console.log(cameraRect.left + " " + cameraRect.top + " " + this.currentX_px + " " + this.currentY_px);
         Entity.prototype.draw.call(this, ctx, cameraRect, tick);
+        if (this.isAttacking) {
+            if (this.isRight) {
+                this.atkHitBoxesRight.draw(ctx, cameraRect);
+            } else {
+                this.atkHitBoxesLeft.draw(ctx,cameraRect);
+            }
+        }
         var percent = this.health / GAME_CONSTANT.MAX_HEALTH;
+        ctx.fillStyle = "white";
+        this.drawRoundedRect(ctx, 10, 10, 520, 50);
         ctx.fillStyle = "black";
-        ctx.fillRect(this.currentX_px - cameraRect.left, this.currentY_px - cameraRect.top - 10,
-                        this.width, 5);
+        this.drawRoundedRect(ctx, 20, 20, 500, 30);
         if (percent > 0.4) {
             ctx.fillStyle = "green";
         } else {
             ctx.fillStyle = "red";
         }
-        ctx.fillRect(this.currentX_px - cameraRect.left, this.currentY_px - cameraRect.top - 10,
-                        this.width * percent, 5);
+        this.drawRoundedRect(ctx, 20, 20, 500 * percent, 30);
     }
 };
+
+function SwordHitBox (knockbackX, knowbackY) {
+    this.hitBoxes = [];
+    this.knockback = {x : knockbackX, y : knowbackY}
+}
+
+SwordHitBox.prototype = {
+    addBox : function (x, offX, y, offY, width, height) {
+        this.hitBoxes.push({
+            hitBox : new Rectangle(x + offX, y + offY, width, height),
+            offsetX : offX,
+            offsetY : offY
+        });
+    },
+
+    hit : function (enemies) {
+        var hitEnemies = []
+        for (var i = 0; i < enemies.length; i += 1) {
+            var monster = enemies[i];
+            for (var j = 0; j < this.hitBoxes.length; j += 1) {
+                var box = this.hitBoxes[j].hitBox;
+                if (box.left + box.width > monster.currentX_px &&
+                    box.left < monster.currentX_px + monster.width &&
+                    box.top + box.height > monster.currentY_px &&
+                    box.top < monster.currentY_px + monster.height) {
+                        hitEnemies.push(monster);
+                        break;
+                    }
+            }
+        }
+        for (var i = 0; i < hitEnemies.length; i += 1) {
+            hitEnemies[i].gotAttacked(0, this.knockback);
+        }
+    },
+
+    update : function (posX, posY) {
+        for (var i = 0; i < this.hitBoxes.length; i += 1) {
+            this.hitBoxes[i].hitBox.left = posX + this.hitBoxes[i].offsetX;
+            this.hitBoxes[i].hitBox.top = posY + this.hitBoxes[i].offsetY;
+        }
+    },
+
+    draw : function (ctx, cameraRect) {
+        ctx.save();
+        ctx.fillStyle = "red";
+        ctx.globalAlpha = 0.5;
+        for (var i = 0; i < this.hitBoxes.length; i += 1) {
+            ctx.fillRect (this.hitBoxes[i].hitBox.left - cameraRect.left,
+                this.hitBoxes[i].hitBox.top - cameraRect.top,
+                this.hitBoxes[i].hitBox.width, this.hitBoxes[i].hitBox.height);
+        }
+        ctx.restore();
+    }
+}

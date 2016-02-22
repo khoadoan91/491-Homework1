@@ -10,11 +10,11 @@
                                     |        |                              xxxx     |
                                     |xxx     |                                       |
                                     |        |                                       |
-                                    |  *                     xxx        xxx          |
+                                    |                        xxx        xxx          |
                                     |xxx                xxx       xxx        xx      |
-                                    |                   xo                           |
+                                    |                   x                            |
                                     |      xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx       |
-                                    |   *    |                                     * |
+                                    |        |                                       |
                                     |   x    |                                    xxx|
                                     |   xx   |                                       |
                                     |   xx   |                                       |
@@ -34,7 +34,7 @@
          xx   | |              |                             |                       |
               | |xxxxxxxxxxxxxxx                             |                       |
               |                                              |                       |
-@    x      ! |                                              |                       |
+@    x     !! |                                              |                       |
 xxxxx|xxxxxxxxx                                              |                       |
                                                              |                       |
                                                              |xxxxxxxxxxxxxxxxxxxxxxx|
