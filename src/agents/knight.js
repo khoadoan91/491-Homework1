@@ -6,10 +6,10 @@ function Knight (x, y, game, level) {
     this.yVelocity = 0;
     this.checkPointX = this.currentX_px;
     this.checkPointY = this.currentY_px;
-    this.atkHitBoxesRight = new SwordHitBox(3, -3);
+    this.atkHitBoxesRight = new SwordHitBox(1, -0.6);
     this.atkHitBoxesRight.addBox(this.currentX_px, 5, this.currentY_px, - 20, 60, 20); // swordbox top on right
     this.atkHitBoxesRight.addBox(this.currentX_px, 40, this.currentY_px, 0, 47, 50); // swordbox right
-    this.atkHitBoxesLeft = new SwordHitBox(-3, -3);
+    this.atkHitBoxesLeft = new SwordHitBox(-1, -0.6);
     this.atkHitBoxesLeft.addBox(this.currentX_px, - 30, this.currentY_px, -20, 60, 20); // swordbox top of left
     this.atkHitBoxesLeft.addBox(this.currentX_px, - 45, this.currentY_px, 0, 47, 50); // swordbox left
 
@@ -71,7 +71,6 @@ function Knight (x, y, game, level) {
 
 Knight.prototype = {
     moveX : function () {
-        var oldX = this.currentX_px;
         if (this.controllable) {
             if (this.game.keyStatus["d"])  {
                 this.isRight = true;
@@ -98,11 +97,9 @@ Knight.prototype = {
             //     this.currentX_px = newX;
             // }
         }
-        return oldX;
     },
 
     moveY : function () {
-        var oldY = this.currentY_px;
         if (this.controllable) {
             if (this.yVelocity < GAME_CONSTANT.TERMINAL_VELOCITY) {
                 this.yVelocity += GAME_CONSTANT.Y_ACCELERATION;
@@ -137,7 +134,6 @@ Knight.prototype = {
                 }
             }
         }
-        return oldY;
     },
 
     touchEnemy : function (monster) {
@@ -163,11 +159,8 @@ Knight.prototype = {
     },
 
     update : function (tick) {
-        var oldX = this.moveX();
-        var oldY = this.moveY();
-        // if (oldX !== this.currentX_px || oldY !== this.currentY_px) {
-        //     this.updateFollowers(oldX, oldY);
-        // }
+        this.moveX();
+        this.moveY();
         if (this.game.keyStatus['space'] && this.yVelocity === 0) {
             this.controllable = false;
             this.isAttacking = true;
@@ -243,7 +236,7 @@ Knight.prototype = {
             }
         }
         var percent = this.health / GAME_CONSTANT.MAX_HEALTH;
-        ctx.fillStyle = "white";
+        ctx.fillStyle = "#8B3E31";
         this.drawRoundedRect(ctx, 10, 10, 520, 50);
         ctx.fillStyle = "black";
         this.drawRoundedRect(ctx, 20, 20, 500, 30);

@@ -14,11 +14,14 @@ Enemy.prototype.constructor = Enemy;
 Enemy.prototype.gotAttacked = function (tick, knockback) {
     this.isBeingAttacked = true;
     if (this.invulnerableTime === GAME_CONSTANT.INVULNERABLE_TIME) {
-        if (knockbackX) {
+        if (knockback) {
             this.health -= GAME_CONSTANT.DAMAGE;
-            this.knockback += knockback;
+            this.knockback = knockback;
+            this.yVelocity = knockback.y;
         }
     }
+    this.moveX(this.knockback.x);
+    this.moveY();
     this.invulnerableTime -= tick;
     if (this.invulnerableTime <= 0) {
         this.invulnerableTime = GAME_CONSTANT.INVULNERABLE_TIME;
@@ -26,15 +29,15 @@ Enemy.prototype.gotAttacked = function (tick, knockback) {
     }
 };
 
-Enemy.prototype.moveX = function () {
-    var tempX = this.currentX_px + this.xVelocity;
+Enemy.prototype.moveX = function (xVel) {
+    var tempX = this.currentX_px + xVel;
     var obstacle = this.level.obstacleAt(tempX, this.currentY_px, this.width, this.height);
     if (!obstacle) {
         this.currentX_px = tempX;
     }
 };
 
-Enemy.prototype.moveY = function () {
+Enemy.prototype.moveY = function (yVel) {
     if (this.yVelocity < GAME_CONSTANT.TERMINAL_VELOCITY) {
         this.yVelocity += GAME_CONSTANT.Y_ACCELERATION;
     }

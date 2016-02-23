@@ -96,7 +96,7 @@ GameEngine.prototype = {
     update : function () {
 
         var entitiesCount = this.entities.length, i, entity;
-        this.player.update();
+        this.player.update(this.clockTick);
         for (i = 0; i < entitiesCount; i += 1) {
             entity = this.entities[i];
 

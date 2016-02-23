@@ -5,33 +5,33 @@
                                     |                                                |
                                     |                                                |
                                     |                                                |
-                                    |                                                |
+                                    |                 !               !              |
                                     |      xxxxxxx   xxxx  xxxx      xxx             |
                                     |        |                              xxxx     |
                                     |xxx     |                                       |
                                     |        |                                       |
-                                    |                        xxx        xxx          |
+                                    | *                  *   xxx        xxx          |
                                     |xxx                xxx       xxx        xx      |
                                     |                   x                            |
                                     |      xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx       |
-                                    |        |                                       |
+                                    |        |                                     * |
                                     |   x    |                                    xxx|
                                     |   xx   |                                       |
                                     |   xx   |                                       |
-                                    |   xx   |                                       |
+                                    |   xx   |           *               *           |
                                     |x  xxx  |x  |xx    xxx    xxxx    xxxxxx    xxxx|
                                     |        |   |                                   |
-                                    |        |   |                                   |
+                                    |      ! |   |                             !     |
                                     |      xx|   |                            xx     |
-                                    |        |   |                            xx    o|
-                                    |      w |   |xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx|
+                                    |        |   |    !          !            xx    o|
+                                    |      ! |   |xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx|
                      x                   xxxx|               |                       |
                       x                      |               |                       |
                        x            *       o|o                                      |
                w        x        xxxxxxxxxxxxxxxxxxxxxxxxx                           |
               xxx               w|                       |                           |
               | |              xxx                       |xxxx                       |
-         xx   | |              |                             |                       |
+         xx   | |       !      |                             |                       |
               | |xxxxxxxxxxxxxxx                             |                       |
               |                                              |                       |
 @    x     !! |                                              |                       |

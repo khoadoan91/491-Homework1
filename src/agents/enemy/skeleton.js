@@ -60,16 +60,16 @@ Skeleton.prototype.scanKnightNearBy = function (posX, posY) {
 };
 
 Skeleton.prototype.update = function (tick, posX, posY, width, height) {
-    this.moveY();
+    this.moveY(this.yVelocity);
     if (this.health <= 0) {
         this.removeFromWorld = true;
     }
     if (this.isBeingAttacked) {
         this.gotAttacked(tick);
-        this.setIdleAnimation();
+        // this.setIdleAnimation();
     } else {    // if the skeleton is not being attacked, do some behavior
         if (this.isChasing) {
-            this.moveX();
+            this.moveX(this.xVelocity);
             // offset for the position of skeleton and knight.
             if (Math.abs(this.currentX_px - this.destination.x) <= 2 &&
                 Math.abs(this.currentY_px - this.destination.y) <= 9) {
