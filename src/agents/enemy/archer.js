@@ -113,7 +113,7 @@ Archer.prototype.attackKnightInRange = function (tick, posX, posY, width, height
 };
 
 Archer.prototype.update = function (tick, posX, posY, width, height) {
-    this.moveY();
+    this.moveY(this.yVelocity);
     if (this.health <= 0) {
         this.removeFromWorld = true;
     }
