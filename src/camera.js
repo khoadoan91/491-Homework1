@@ -6,9 +6,9 @@ it is modified for the purpose of this project.
 */
 
 var AXIS = {
-    NONE: "none", 
-    HORIZONTAL: "horizontal", 
-    VERTICAL: "vertical", 
+    NONE: "none",
+    HORIZONTAL: "horizontal",
+    VERTICAL: "vertical",
     BOTH: "both"
 };
 
@@ -32,17 +32,17 @@ Rectangle.prototype = {
         this.right = (this.left + this.width);
         this.bottom = (this.top + this.height);
     },
-    
+
     within : function (r) {
-        return (r.left <= this.left && 
+        return (r.left <= this.left &&
                 r.right >= this.right &&
-                r.top <= this.top && 
+                r.top <= this.top &&
                 r.bottom >= this.bottom);
     },
-    
+
    overlap : function (r) {
-       return (this.left < r.right && 
-               r.left < this.right && 
+       return (this.left < r.right &&
+               r.left < this.right &&
                this.top < r.bottom &&
                r.top < this.bottom);
    }
@@ -60,16 +60,19 @@ function Camera(xView, yView, canvasWidth, canvasHeight, worldWidth, worldHeight
 
     // viewport dimensions
     this.wView = canvasWidth;
-    this.hView = canvasHeight;			
+    this.hView = canvasHeight;
 
     // allow camera to move in vertical and horizontal axis
-    this.axis = AXIS.BOTH;	
+    this.axis = AXIS.BOTH;
 
     // object that should be followed
     this.followed = null;
 
+    this.vel = {x : 0, y : 0}; // velocity of the camera when not following anything.
+    this.dest = {x : 0, y : 0};
+
     // rectangle that represents the viewport
-    this.viewportRect = new Rectangle(this.xView, this.yView, this.wView, this.hView);				
+    this.viewportRect = new Rectangle(this.xView, this.yView, this.wView, this.hView);
 
     // rectangle that represents the world's boundary (room's boundary)
     this.worldRect = new Rectangle(0, 0, worldWidth, worldHeight);
@@ -78,15 +81,21 @@ function Camera(xView, yView, canvasWidth, canvasHeight, worldWidth, worldHeight
 Camera.prototype = {
     // gameObject needs to have "x" and "y" properties (as world(or room) position)
     follow : function (gameObject, xDeadZone, yDeadZone) {
-        this.followed = gameObject;	
+        this.followed = gameObject;
         this.xDeadZone = xDeadZone;
         this.yDeadZone = yDeadZone;
     },
-    
+
+    setDestination : function (posX, posY, velX, velY) {
+        this.dest.x = posX; this.dest.y = posY;
+        this.vel.x = velX; this.vel.y = velY;
+        this.followed = null;
+    },
+
     update : function () {
         // keep following the player (or other desired object)
-        if(this.followed != null) {		
-            if(this.axis == AXIS.HORIZONTAL || this.axis == AXIS.BOTH) {	
+        if(this.followed != null) {
+            if(this.axis == AXIS.HORIZONTAL || this.axis == AXIS.BOTH) {
                 // moves camera on horizontal axis based on followed object position
                 if(this.followed.currentX_px - this.xView  + this.xDeadZone > this.wView) {
                     this.xView = this.followed.currentX_px - (this.wView - this.xDeadZone);
@@ -101,8 +110,15 @@ Camera.prototype = {
                 } else if(this.followed.currentY_px - this.yDeadZone < this.yView) {
                     this.yView = this.followed.currentY_px - this.yDeadZone;
                 }
-            }						
+            }
 
+        } else {
+            if (this.xView !== this.dest.x) {
+                this.xView += this.vel.x;
+            }
+            if (this.yView !== this.dest.y) {
+                this.yView += this.vel.y;
+            }
         }
         // update viewportRect
         this.viewportRect.set(this.xView, this.yView);
@@ -111,11 +127,11 @@ Camera.prototype = {
         if(!this.viewportRect.within(this.worldRect)) {
             if(this.viewportRect.left < this.worldRect.left)
                 this.xView = this.worldRect.left;
-            if(this.viewportRect.top < this.worldRect.top)					
+            if(this.viewportRect.top < this.worldRect.top)
                 this.yView = this.worldRect.top;
             if(this.viewportRect.right > this.worldRect.right)
                 this.xView = this.worldRect.right - this.wView;
-            if(this.viewportRect.bottom > this.worldRect.bottom)					
+            if(this.viewportRect.bottom > this.worldRect.bottom)
                 this.yView = this.worldRect.bottom - this.hView;
         }
         // update viewportRect

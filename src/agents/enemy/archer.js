@@ -7,6 +7,7 @@ var ARCHER_ATTR = {
     ATK_DOWN_RIGHT : 5,
     ATK_UP_LEFT : 6,
     ATK_UP_RIGHT : 7,
+    DIE : 8,
 
     VISION_RADIUS : 520,
     STARTING_HEALTH : 4,
@@ -31,6 +32,7 @@ function Archer (x, y, game, level) {
     var archerRightShootingDown = new Animation(archerImg, 73, 64, 0.2, false);
     var archerLeftShootingUp = new Animation(archerImg, 73, 64, 0.2, false);
     var archerRightShootingUp = new Animation(archerImg, 73, 64, 0.2, false);
+    var archerDie = new Animation(AM.getAsset("./img/enemy/death anim.png"), 15, 15, 0.2, false);
     archerRight.addFrame(73, 0);
     archerLeft.addFrame(0, 0);
     archerLeftShooting.addFrame(0, 64, 3);
@@ -39,6 +41,7 @@ function Archer (x, y, game, level) {
     archerRightShootingDown.addFrame(0, 256, 3);
     archerLeftShootingUp.addFrame(0, 320, 3);
     archerRightShootingUp.addFrame(0, 384, 3);
+    archerDie.addFrame(0, 0, 15);
 
     this.animationList.push(archerLeft);
     this.animationList.push(archerRight);
@@ -48,8 +51,7 @@ function Archer (x, y, game, level) {
     this.animationList.push(archerRightShootingDown);
     this.animationList.push(archerLeftShootingUp);
     this.animationList.push(archerRightShootingUp);
-
-    this.removeFromWorld = false;
+    this.animationList.push(archerDie);
 }
 
 Archer.prototype = new Enemy();
@@ -86,7 +88,7 @@ Archer.prototype.attackKnightInRange = function (tick, posX, posY, width, height
     var distanceY = playerCenter.y - archerCenter.y;
     var angle = Math.atan2(-distanceY, distanceX);
     var distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
-    // check if the knight is in the vision radius (450 px), count down the shooting time.
+    // check if the knight is in the vision radius (520 px), count down the shooting time.
     if (distance < this.visionRadius) {
         if (this.timeDurationNextArrow === ARCHER_ATTR.SHOOTING_TIME) {
             this.setAnimationFromAngle(angle);
@@ -115,25 +117,35 @@ Archer.prototype.attackKnightInRange = function (tick, posX, posY, width, height
 Archer.prototype.update = function (tick, posX, posY, width, height) {
     this.moveY(this.yVelocity);
     if (this.health <= 0) {
-        this.removeFromWorld = true;
+        this.isAlive = false;
+        this.currentAnimation = ARCHER_ATTR.DIE;
     }
-    if (this.isBeingAttacked) {
-        this.gotAttacked(tick);
+    if (this.isAlive) {
+        if (this.isBeingAttacked) {
+            this.gotAttacked(tick);
+        }
+        this.attackKnightInRange(tick, posX, posY, width, height);
+    } else {
+        if (this.animationList[ARCHER_ATTR.DIE].isDone()) {
+            this.animationList[ARCHER_ATTR.DIE].elapsedTime = 0;
+            this.removeFromWorld = true;
+        }
     }
-    this.attackKnightInRange(tick, posX, posY, width, height);
     Enemy.prototype.update.call(this);
 };
 
 Archer.prototype.draw = function (ctx, cameraRect, tick) {
     Enemy.prototype.draw.call(this, ctx, cameraRect, tick);
-    var percent = this.health / 4;
-    if (percent > 0.4) {
-        ctx.fillStyle = "green";
-    } else {
-        ctx.fillStyle = "red";
+    if (this.isAlive) {
+        var percent = this.health / 4;
+        if (percent > 0.4) {
+            ctx.fillStyle = "green";
+        } else {
+            ctx.fillStyle = "red";
+        }
+        ctx.fillRect(this.currentX_px - cameraRect.left, this.currentY_px - cameraRect.top - 20,
+                        this.width * percent, 5);
     }
-    ctx.fillRect(this.currentX_px - cameraRect.left, this.currentY_px - cameraRect.top - 20,
-                    this.width * percent, 5);
 };
 
 function Arrow (x, y, distanceX, distanceY, angle, level) {

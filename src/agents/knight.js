@@ -12,7 +12,7 @@ function Knight (x, y, game, level) {
     this.atkHitBoxesLeft = new SwordHitBox(-1, -0.6);
     this.atkHitBoxesLeft.addBox(this.currentX_px, - 30, this.currentY_px, -20, 60, 20); // swordbox top of left
     this.atkHitBoxesLeft.addBox(this.currentX_px, - 45, this.currentY_px, 0, 47, 50); // swordbox left
-
+    // uncomment the code in the knight.draw method to see the hit boxes
     this.health = GAME_CONSTANT.MAX_HEALTH;
 
     this.injureTime = GAME_CONSTANT.INJURE_TIME;

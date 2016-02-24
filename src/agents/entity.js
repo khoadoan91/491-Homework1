@@ -6,8 +6,6 @@ var GAME_CONSTANT = {
     INJURE_TIME : 2,
     INVULNERABLE_TIME : 0.50,
 
-    SKELETON_HEALTH : 6,
-
     //Animation Constants
     STANDING_RIGHT_ANIMATION : 0,
     STANDING_LEFT_ANIMATION : 1,
@@ -19,8 +17,8 @@ var GAME_CONSTANT = {
     FALLING_LEFT_ANIMATION : 7,
     ATTACKING_RIGHT_ANIMATION : 8,
     ATTACKING_LEFT_ANIMATION : 9,
-    HIT_RIGHT_ANIMATION : 10,
-    HIT_LEFT_ANIMATION : 11,
+    // HIT_RIGHT_ANIMATION : 10,
+    // HIT_LEFT_ANIMATION : 11,
 
     //Physics Constants
     TERMINAL_VELOCITY : 16,
@@ -30,9 +28,9 @@ var GAME_CONSTANT = {
     Y_ACCELERATION : 0.35,
     RUNNING_SPEED : 5,
     //Extra velocity added for holding down while falling.
-    PRESS_DOWN_SPEED : 2,
+    // PRESS_DOWN_SPEED : 2,
     //Gravity reduction for holding up while rising.
-    PRESS_UP_SPEED : 0.17
+    // PRESS_UP_SPEED : 0.17
 }
 
 /**

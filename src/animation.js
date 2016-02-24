@@ -49,7 +49,8 @@ Animation.prototype = {
         }
     },
 
-    drawFrame : function (tick, ctx, x, y) {
+    drawFrame : function (tick, ctx, x, y, scale) {
+        var s = scale || 1;
         this.elapsedTime += tick;
         if (this.isDone()) {
             if (this.loop) {
@@ -63,7 +64,7 @@ Animation.prototype = {
                       xStart, yStart,
                       this.frameWidth, this.frameHeight,
                       x + this.offsetX, y + this.offsetY,
-                      this.frameWidth, this.frameHeight);
+                      this.frameWidth * s, this.frameHeight * s);
     },
 
     isDone : function () {
