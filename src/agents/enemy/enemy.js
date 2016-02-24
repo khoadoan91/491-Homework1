@@ -11,6 +11,14 @@ function Enemy (x, y, width, height, health, xVel, yVel, level) {
 Enemy.prototype = new Entity();
 Enemy.prototype.constructor = Enemy;
 
+Enemy.prototype.knockback = function (xVel, yVel) {
+    this.moveX(xVel);
+    if (this.invulnerableTime === GAME_CONSTANT.INVULNERABLE_TIME) {
+        this.yVelocity = yVel;
+    }
+    this.moveY();
+}
+
 Enemy.prototype.gotAttacked = function (tick, knockback) {
     this.isBeingAttacked = true;
     if (this.invulnerableTime === GAME_CONSTANT.INVULNERABLE_TIME) {
