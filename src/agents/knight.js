@@ -110,7 +110,7 @@ Knight.prototype = {
                 this.currentY_px = newY;
             } else {
                 if (this.game.keyStatus["w"] && this.yVelocity === GAME_CONSTANT.Y_ACCELERATION) {
-                    this.yVelocity = -GAME_CONSTANT.JUMP_SPEED;
+                    this.yVelocity = GAME_CONSTANT.JUMP_SPEED;
                 } else {
                     this.yVelocity = 0;
                     if (this.currentY_px < obstacle.currentY_px) {
@@ -147,14 +147,15 @@ Knight.prototype = {
             }
         } else if (monster instanceof Arrow) {
             monster.removeFromWorld = true;
-            this.health -= 1;
+            if (this.health > 0 && !this.isInjure) {
+                this.isInjure = true;
+                this.health -= 1;
+            }
         } else {
             if (this.health > 0 && !this.isInjure && !monster.isBeingAttacked) {
                 this.health -= GAME_CONSTANT.DAMAGE;
                 this.isInjure = true;
-                // TODO make some effects when the knight touches the monster.
             }
-
         }
     },
 
@@ -197,6 +198,7 @@ Knight.prototype = {
         if (this.injureTime <= 0) {
             this.injureTime = GAME_CONSTANT.INJURE_TIME;
             this.isInjure = false;
+            this.knockback = {x : 0, y : 0};
         }
 
         if (this.health <= 0) {
@@ -226,15 +228,20 @@ Knight.prototype = {
     },
 
     draw : function (ctx, cameraRect, tick) {
-        // console.log(cameraRect.left + " " + cameraRect.top + " " + this.currentX_px + " " + this.currentY_px);
-        Entity.prototype.draw.call(this, ctx, cameraRect, tick);
-        if (this.isAttacking) {
-            if (this.isRight) {
-                this.atkHitBoxesRight.draw(ctx, cameraRect);
-            } else {
-                this.atkHitBoxesLeft.draw(ctx,cameraRect);
-            }
+        ctx.save();
+        var flashing = Math.floor(this.injureTime * 100);
+        if (this.isInjure && (flashing % 5 === 0 || flashing % 2 === 0)) {
+            ctx.globalAlpha = 0.1;
         }
+        Entity.prototype.draw.call(this, ctx, cameraRect, tick);
+        ctx.restore();
+        // if (this.isAttacking) {
+        //     if (this.isRight) {
+        //         this.atkHitBoxesRight.draw(ctx, cameraRect);
+        //     } else {
+        //         this.atkHitBoxesLeft.draw(ctx,cameraRect);
+        //     }
+        // }
         var percent = this.health / GAME_CONSTANT.MAX_HEALTH;
         ctx.fillStyle = "#8B3E31";
         this.drawRoundedRect(ctx, 10, 10, 520, 50);

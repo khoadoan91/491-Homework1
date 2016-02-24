@@ -25,7 +25,7 @@ var GAME_CONSTANT = {
     //Physics Constants
     TERMINAL_VELOCITY : 16,
     //Initial jump velocity for tapping jump.
-    JUMP_SPEED : 12,
+    JUMP_SPEED : -12,
     //Gravity's downward acceleration
     Y_ACCELERATION : 0.35,
     RUNNING_SPEED : 5,
