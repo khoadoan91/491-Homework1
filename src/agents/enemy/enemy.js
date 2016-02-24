@@ -5,7 +5,9 @@ function Enemy (x, y, width, height, health, xVel, yVel, level) {
     this.yVelocity = yVel;
     this.level = level;
     this.isBeingAttacked = false;
+    this.isAlive = true;
     this.invulnerableTime = GAME_CONSTANT.INVULNERABLE_TIME;
+    this.removeFromWorld = false;
 }
 
 Enemy.prototype = new Entity();
@@ -45,7 +47,7 @@ Enemy.prototype.moveX = function (xVel) {
     }
 };
 
-Enemy.prototype.moveY = function (yVel) {
+Enemy.prototype.moveY = function () {
     if (this.yVelocity < GAME_CONSTANT.TERMINAL_VELOCITY) {
         this.yVelocity += GAME_CONSTANT.Y_ACCELERATION;
     }
@@ -60,3 +62,24 @@ Enemy.prototype.moveY = function (yVel) {
         }
     }
 };
+
+Enemy.prototype.draw = function (ctx, cameraRect, tick) {
+    if (this.isAlive) {
+        Entity.prototype.draw.call(this, ctx, cameraRect, tick);
+        // var percent = this.health / 6;
+        // if (percent > 0.4) {
+        //     ctx.fillStyle = "green";
+        // } else {
+        //     ctx.fillStyle = "red";
+        // }
+        // ctx.fillRect(this.currentX_px - cameraRect.left, this.currentY_px - cameraRect.top - 10,
+        //                 this.width * percent, 5);
+    } else {
+        var centerX = this.currentX_px + Math.floor(this.width / 2);
+        var centerY = this.currentY_px + Math.floor(this.height / 2);
+        var xAnimDie = centerX - 15;
+        var yAnimDie = centerY - 15;
+        this.animationList[this.currentAnimation].drawFrame(tick,
+                            ctx, xAnimDie - cameraRect.left, yAnimDie - cameraRect.top, 2);
+    }
+}

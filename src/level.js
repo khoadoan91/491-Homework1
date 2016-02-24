@@ -1,7 +1,7 @@
 function Level () {
     this.backgroundList = [];
     this.grid = [];
-    this.titles = [];
+    // this.titles = [];
     this.enemies = [];
     // var foreground = new Foreground();
     // this.door = [];
@@ -33,9 +33,12 @@ Level.prototype = {
                 GAME_CONSTANT.BLOCK_SIZE, GAME_CONSTANT.BLOCK_SIZE, 1, true);
         forestBlock.addFrame(0,0);
         var wallBlock = new Animation(AM.getAsset("./img/forest-stage/tree tile.png"),
-                GAME_CONSTANT.BLOCK_SIZE, GAME_CONSTANT.BLOCK_SIZE, 1, true)
+                GAME_CONSTANT.BLOCK_SIZE, GAME_CONSTANT.BLOCK_SIZE, 1, true);
         wallBlock.addFrame(0,0);
-    
+        var doorBlock = new Animation(AM.getAsset("./img/forest-stage/tree outer door.png"),
+                GAME_CONSTANT.BLOCK_SIZE, GAME_CONSTANT.BLOCK_SIZE * 3, 1, true);
+        doorBlock.addFrame(0,0);
+
         var currentX = 0;
         var currentY = 0;
         
@@ -46,11 +49,15 @@ Level.prototype = {
                 switch (currentSymbol) {
                     case "x" : 
                         block = new Block(x, y, forestBlock);
-                        this.titles.push(block); 
+                        // this.titles.push(block);
                         break;
                     case "|" : 
                         block = new Block(x, y, wallBlock);
-                        this.titles.push(block);
+                        // this.titles.push(block);
+                        break;
+                    case "F" :
+                        block = new FinishDoor(x, y, doorBlock);
+                        // this.titles.push(block);
                         break;
                     case "!" : this.enemies.push(new Skeleton(x, y, this)); break;
                     case "*" : this.enemies.push(new Archer(x, y, game, this)); break;

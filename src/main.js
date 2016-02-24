@@ -19,11 +19,12 @@ AM.queueDownload("./img/forest-stage/tree tile inner.png");
 AM.queueDownload("./img/forest-stage/forest sky.png");
 AM.queueDownload("./img/forest-stage/forest trees.png");
 
-AM.queueDownload("./img/enemy/skeletonChaser mockup.png");
-AM.queueDownload("./img/enemy/skeletonArcher mockup.png");
-AM.queueDownload("./img/enemy/wispChaser mockup.png");
+AM.queueDownload("./img/enemy/chaser.png");
+AM.queueDownload("./img/enemy/archer.png");
+AM.queueDownload("./img/enemy/wisp.png");
+AM.queueDownload("./img/enemy/death anim.png");
 
-AM.queueStageDownload("./txt/forest-stage.txt");
+// AM.queueStageDownload("./txt/forest-stage.txt");
 
 /*
 Download all the elements and add entities to the game.
@@ -58,7 +59,51 @@ AM.downloadAll(function () {
 
     var game = new GameEngine(ctx);
     var forestStage = new Level();
-    forestStage.parseLevelFile(AM.getAsset("./txt/forest-stage.txt").split("\n"), game); 
+
+    var map = [
+"                                    |                                                |",
+"                                    |                                                |",
+"                                    |                                                |",
+"                                    |                                                |",
+"                                    |                                                |",
+"                                    |                                                |",
+"                                    |                                                |",
+"                                    |                 !               !              |",
+"                                    |      xxxxxxx   xxxx  xxxx      xxx             |",
+"                                    |        |                              xxxx     |",
+"                                    |xxx     |                                       |",
+"                                    |        |                                       |",
+"                                    | *                  *   xxx        xxx          |",
+"                                    |xxx                xxx       xxx        xx      |",
+"                                    |                   x                            |",
+"                                    |      xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx       |",
+"                                    |        |                                     * |",
+"                                    |   x    |                                    xxx|",
+"                                    |   xx   |                                       |",
+"                                    |   xx   |                                       |",
+"                                    |   xx   |         *        w        *           |",
+"                                    |x  xxx  |x  |xx  xxxxxxxxxxxxxx   xxxxxx    xxxx|",
+"                                    |        |   |                                   |",
+"                                    |      ! |   |                             !     |",
+"                                    |      xx|   |                            xx     |",
+"                                    |        |   |    !          !            xx    o|",
+"                                    |      ! |   |xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx|",
+"                     x                   xxxx|               |B                      |",
+"                      x                      |               |                       |",
+"                       x            *       o|o                                      |",
+"               w        x        xxxxxxxxxxxxxxxxxxxxxxxxx                           |",
+"              xxx               w|                       |                           |",
+"              | |              xxx                       |xxxx                       |",
+"         xx   | |       !      |                             |                       |",
+"              | |xxxxxxxxxxxxxxx                             |                       |",
+"              |                                              |                       |",
+"@    x     !! |                                              |                       |",
+"xxxxx|xxxxxxxxx                                              |                       |",
+"                                                             |                      EF",
+"                                                             |xxxxxxxxxxxxxxxxxxxxxxx|",
+    ];
+    // forestStage.parseLevelFile(AM.getAsset("./txt/forest-stage.txt").split("\n"), game);
+    forestStage.parseLevelFile(map, game);
     forestStage.addBackground(AM.getAsset("./img/forest-stage/forest sky.png"));
     forestStage.addBackground(AM.getAsset("./img/forest-stage/forest trees.png"), true, true, 3/4);
     var camera = new Camera(0, 0, canvas.width, canvas.height, forestStage.width_px, forestStage.height_px);
