@@ -1,7 +1,7 @@
 var WISP_ATTR = {
     STARTING_HEALTH : 4,
     VISION_RADIUS : 550,
-    VELOCITY : 3,
+    VELOCITY : 1,
 }
 
 function Wisp (x, y, level) {

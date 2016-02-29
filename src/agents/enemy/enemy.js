@@ -1,6 +1,9 @@
 function Enemy (x, y, width, height, health, xVel, yVel, level) {
     Entity.call(this, x, y, width, height);
     this.health = health;
+    this.maxHealth = health;
+    this.spawnX = this.currentX_px;
+    this.spawnY = this.currentY_px;
     this.xVelocity = xVel;
     this.yVelocity = yVel;
     this.level = level;
@@ -22,20 +25,22 @@ Enemy.prototype.knockback = function (xVel, yVel) {
 }
 
 Enemy.prototype.gotAttacked = function (tick, knockback) {
-    this.isBeingAttacked = true;
-    if (this.invulnerableTime === GAME_CONSTANT.INVULNERABLE_TIME) {
-        if (knockback) {
-            this.health -= GAME_CONSTANT.DAMAGE;
-            this.knockback = knockback;
-            this.yVelocity = knockback.y;
+    if (this.isAlive) {
+        this.isBeingAttacked = true;
+        if (this.invulnerableTime === GAME_CONSTANT.INVULNERABLE_TIME) {
+            if (knockback) {
+                this.health -= GAME_CONSTANT.DAMAGE;
+                this.knockback = knockback;
+                this.yVelocity = knockback.y;
+            }
         }
-    }
-    this.moveX(this.knockback.x);
-    this.moveY();
-    this.invulnerableTime -= tick;
-    if (this.invulnerableTime <= 0) {
-        this.invulnerableTime = GAME_CONSTANT.INVULNERABLE_TIME;
-        this.isBeingAttacked = false;
+        this.moveX(this.knockback.x);
+        this.moveY();
+        this.invulnerableTime -= tick;
+        if (this.invulnerableTime <= 0) {
+            this.invulnerableTime = GAME_CONSTANT.INVULNERABLE_TIME;
+            this.isBeingAttacked = false;
+        }
     }
 };
 
@@ -80,6 +85,6 @@ Enemy.prototype.draw = function (ctx, cameraRect, tick) {
         var xAnimDie = centerX - 15;
         var yAnimDie = centerY - 15;
         this.animationList[this.currentAnimation].drawFrame(tick,
-                            ctx, xAnimDie - cameraRect.left, yAnimDie - cameraRect.top, 2);
+                            ctx, xAnimDie - cameraRect.left, yAnimDie - cameraRect.top, 0, 0, 2);
     }
 }

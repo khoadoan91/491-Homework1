@@ -46,8 +46,10 @@ Animation.prototype = {
         }
     },
 
-    drawFrame : function (tick, ctx, x, y, scale) {
+    drawFrame : function (tick, ctx, x, y, width, height, scale) {
         var s = scale || 1;
+        var w = width || this.frameWidth;
+        var h = height || this.frameHeight;
         this.elapsedTime += tick;
         if (this.isDone()) {
             if (this.loop) {
@@ -59,11 +61,11 @@ Animation.prototype = {
         var curFrame = this.currentFrame();
         var xStart = this.frames[curFrame][0];
         var yStart = this.frames[curFrame][1];
-        ctx.drawImage(this.spriteSheet, 
-                      xStart, yStart, 
-                      this.frameWidth, this.frameHeight,
+        ctx.drawImage(this.spriteSheet,
+                      xStart, yStart,
+                      w, h,
                       x + this.offsetX, y + this.offsetY,
-                      this.frameWidth * s, this.frameHeight * s);
+                      w * s, h * s);
     },
     
     isDone : function () {

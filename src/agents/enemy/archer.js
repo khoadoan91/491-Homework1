@@ -103,7 +103,7 @@ Archer.prototype.attackKnightInRange = function (tick, posX, posY, width, height
         if (this.animationList[this.currentAnimation].isDone()) {
             this.animationList[this.currentAnimation].elapsedTime = 0;
             var arrow = new Arrow(archerCenter.x, archerCenter.y, distanceX, distanceY, angle, this.level);
-            this.level.enemies.push(arrow);
+            this.level.characters.push(arrow);
             this.game.addEntity(arrow);
             if (posX > this.currentX_px) {
                 this.currentAnimation = ARCHER_ATTR.IDLE_RIGHT;

@@ -20,7 +20,8 @@ function Knight (x, y, game, level) {
     //setting up gamestate bools
     this.removeFromWorld = false;
     this.controllable = true;
-    this.moveable = true;
+    this.isOnTheAir = false;
+    this.isFalling = false;
     this.isRight = true;
     this.isAttacking = false;
     this.isInjure = false;
@@ -91,11 +92,11 @@ Knight.prototype = {
             var newX = this.currentX_px + this.xVelocity;
             var obstacle = this.level.obstacleAt(newX, this.currentY_px, this.width, this.height);
             if (!obstacle) {
-                this.currentX_px = newX;
-            } else if (obstacle instanceof Door) {
-                this.level.displayHidden(this.currentX_px, this.currentY_px, obstacle);
-                this.currentX_px = newX;
-            }
+                this.currentX_px = Math.floor(newX);
+            } // else if (obstacle instanceof Door) {
+            //     this.level.displayHidden(this.currentX_px, this.currentY_px, obstacle);
+            //     this.currentX_px = newX;
+            // }
         }
     },
     
@@ -106,13 +107,14 @@ Knight.prototype = {
             }
             var newY = this.currentY_px + this.yVelocity;
             var obstacle = this.level.obstacleAt(this.currentX_px, newY, this.width, this.height);
-            if (!obstacle || obstacle instanceof Door) {
-                this.currentY_px = newY;
+            if (!obstacle) {
+                this.currentY_px = Math.floor(newY);
             } else {
                 if (this.game.keyStatus["w"] && this.yVelocity === GAME_CONSTANT.Y_ACCELERATION) {
                     this.yVelocity = GAME_CONSTANT.JUMP_SPEED;
                 } else {
                     this.yVelocity = 0;
+                    this.isOnTheAir = false;
                     if (this.currentY_px < obstacle.currentY_px) {
                         this.currentY_px = obstacle.currentY_px - this.height - 0.1; 
                     }    
@@ -137,22 +139,25 @@ Knight.prototype = {
     },
 
     touchEnemy : function (monster) {
-        if (monster instanceof HealingStuff) {
+        if (monster[0] instanceof HealingStuff) {
             if (this.health < GAME_CONSTANT.MAX_HEALTH) {
-                monster.removeFromWorld = true;
-                this.health += monster.health;
-            } 
+                monster[0].removeFromWorld = true;
+                this.health += monster[0].health;
+            }
             if (this.health >= GAME_CONSTANT.MAX_HEALTH) {
                 this.health = GAME_CONSTANT.MAX_HEALTH;
             }
-        } else if (monster instanceof Arrow) {
-            monster.removeFromWorld = true;
+        } else if (monster[0] instanceof Arrow) {
+            monster[0].removeFromWorld = true;
             if (this.health > 0 && !this.isInjure) {
                 this.isInjure = true;
                 this.health -= 1;
             }
+        } else if (monster[0] instanceof BossCore) {
+            // do nothing.
         } else {
-            if (this.health > 0 && !this.isInjure && !monster.isBeingAttacked) {
+            if (this.health > 0 && !this.isInjure &&
+                !monster[0].isBeingAttacked && monster[0].isAlive) {
                 this.health -= GAME_CONSTANT.DAMAGE;
                 this.isInjure = true;
             }
@@ -175,9 +180,9 @@ Knight.prototype = {
             if (this.animationList[this.currentAnimation].currentFrame() >= 1 &&
             this.animationList[this.currentAnimation].currentFrame() <= 4) {
                 if (this.isRight) {
-                    this.atkHitBoxesRight.hit(this.level.enemies);
+                    this.atkHitBoxesRight.hit(this.level.characters);
                 } else {
-                    this.atkHitBoxesLeft.hit(this.level.enemies);
+                    this.atkHitBoxesLeft.hit(this.level.characters);
                 }
             }
         }
@@ -189,7 +194,7 @@ Knight.prototype = {
             this.isAttacking = false;
         }
         var monster = this.level.enemyAt(this);
-        if (monster) {
+        if (monster.length > 0) {
             this.touchEnemy(monster);
         }
         if (this.isInjure) {
@@ -202,7 +207,7 @@ Knight.prototype = {
         }
 
         if (this.health <= 0) {
-            // TODO reset a map or go back to the check point
+            this.game.resetLevel();
             this.currentX_px = this.checkPointX;
             this.currentY_px = this.checkPointY;
             this.health = GAME_CONSTANT.MAX_HEALTH;
@@ -235,13 +240,13 @@ Knight.prototype = {
         }
         Entity.prototype.draw.call(this, ctx, cameraRect, tick);
         ctx.restore();
-        // if (this.isAttacking) {
-        //     if (this.isRight) {
-        //         this.atkHitBoxesRight.draw(ctx, cameraRect);
-        //     } else {
-        //         this.atkHitBoxesLeft.draw(ctx,cameraRect);
-        //     }
-        // }
+        if (this.isAttacking) {
+            if (this.isRight) {
+                this.atkHitBoxesRight.draw(ctx, cameraRect);
+            } else {
+                this.atkHitBoxesLeft.draw(ctx,cameraRect);
+            }
+        }
         var percent = this.health / GAME_CONSTANT.MAX_HEALTH;
         ctx.fillStyle = "#8B3E31";
         this.drawRoundedRect(ctx, 10, 10, 520, 50);
@@ -270,17 +275,18 @@ SwordHitBox.prototype = {
         });
     },
 
-    hit : function (enemies) {
+    hit : function (characters) {
         var hitEnemies = []
-        for (var i = 0; i < enemies.length; i += 1) {
-            var monster = enemies[i];
+        for (var i = 0; i < characters.length; i += 1) {
+            var character = characters[i];
+            if (character instanceof Knight || character instanceof HealingStuff) continue;
             for (var j = 0; j < this.hitBoxes.length; j += 1) {
                 var box = this.hitBoxes[j].hitBox;
-                if (box.left + box.width > monster.currentX_px &&
-                    box.left < monster.currentX_px + monster.width &&
-                    box.top + box.height > monster.currentY_px &&
-                    box.top < monster.currentY_px + monster.height) {
-                        hitEnemies.push(monster);
+                if (box.left + box.width > character.currentX_px &&
+                    box.left < character.currentX_px + character.width &&
+                    box.top + box.height > character.currentY_px &&
+                    box.top < character.currentY_px + character.height) {
+                        hitEnemies.push(character);
                         break;
                     }
             }
