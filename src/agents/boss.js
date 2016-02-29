@@ -3,7 +3,7 @@ var BOSS_ATTR = {
     HIT : 1,
     ATK : 2,
 
-    STARTING_HEALTH : 4,
+    STARTING_HEALTH : 12,
     WAITING_TIME : 2,
     NORMAL_SPEED : 150,
     ATK_SPEED : {
@@ -28,21 +28,47 @@ var ARM_ATTR = {
 function BossArea(x, y, width, height, bg, game, level) {
     Entity.call(this, x, y, width, height);
     this.bossImg = [];
-    this.bossImg.push(AM.getAsset("./img/enemy/boss/forest boss statue arm1.png"));
-    this.bossImg.push(AM.getAsset("./img/enemy/boss/forest boss statue arm2.png"));
-    this.bossImg.push(AM.getAsset("./img/enemy/boss/forest boss statue chest.png"));
-    this.bossImg.push(AM.getAsset("./img/enemy/boss/forest boss statue base.png"));
+    this.bossImg.push(AM.getAsset("./img/enemy/forest boss/forest boss statue base.png"));
+    this.bossImg.push(AM.getAsset("./img/enemy/forest boss/forest boss statue chest.png"));
+    this.bossImg.push(AM.getAsset("./img/enemy/forest boss/forest boss statue arm2.png"));
+    this.bossImg.push(AM.getAsset("./img/enemy/forest boss/forest boss statue arm1.png"));
     this.bg = bg;
+    this.isReset = true;
     this.game = game;
     this.level = level;
     this.isTrigger = false;
     this.delayTime = 2;
     this.boss = new Boss(x, y, width, height, level);
+    this.transparent = 1;
 }
 
 BossArea.prototype = {
+    reset : function () {
+        this.bossImg = [];
+        this.bossImg.push(AM.getAsset("./img/enemy/forest boss/forest boss statue base.png"));
+        this.bossImg.push(AM.getAsset("./img/enemy/forest boss/forest boss statue chest.png"));
+        this.bossImg.push(AM.getAsset("./img/enemy/forest boss/forest boss statue arm2.png"));
+        this.bossImg.push(AM.getAsset("./img/enemy/forest boss/forest boss statue arm1.png"));
+        this.isTrigger = false;
+        this.delayTime = 2;
+        this.boss.health = BOSS_ATTR.STARTING_HEALTH;
+        this.boss.timeWait = BOSS_ATTR.WAITING_TIME;
+        this.boss.status = BOSS_ATTR.NORMAL;
+        this.boss.isAtk = false;
+        this.boss.isInjure = false;
+        this.boss.isAlive = true;
+        this.boss.armType = ARM_ATTR.THIN;
+        this.isReset = true;
+        this.boss.animationList = [];
+        // while (this.boss.isHidden()) {
+        //     this.boss.update(tick, posX, posY, width, height);
+        // };
+    },
+
     triggerCamera : function () {
-        this.game.camera.setDestination(this.currentX_px, this.currentY_px, 5, 5);
+        this.level.switchAndPlayMusic(BGM.forestBoss);
+        this.game.camera.setDestination(this.currentX_px - 80, this.currentY_px, 5, 5);
+        this.isReset = false;   // this flag is for the InvisibleBlock
         // this.bg.isTrigger = true;
     },
 
@@ -58,10 +84,23 @@ BossArea.prototype = {
                 this.delayTime -= tick;
             }
         }
+        if (!this.boss.isAlive && this.boss.isHidden()) {
+            this.level.resetCamera();
+            this.level.switchAndPlayMusic(BGM.forestLevel);
+            this.isTrigger = false; // this flag for drawing the boss.
+        }
+        if ((this.boss.health === 10 && this.bossImg.length === 4) ||
+            (this.boss.health === 6 && this.bossImg.length === 3) ||
+            (this.boss.health === 0 && this.bossImg.length === 2)) {
+            this.bossImg.splice(this.bossImg.length - 1, 1);
+        }
     },
 
     draw : function (ctx, cameraRect, tick) {
-        ctx.drawImage(this.bg, this.currentX_px - cameraRect.left, this.currentY_px - cameraRect.top);
+        // draw boss background (always when it is alive)
+        if (this.boss.isAlive) {
+            ctx.drawImage(this.bg, this.currentX_px - cameraRect.left, this.currentY_px - cameraRect.top);
+        }
         if (this.delayTime < 0) {
             if (this.boss.isMaxHeight()) {
                 ctx.save();
@@ -69,21 +108,19 @@ BossArea.prototype = {
                 if (flashing % 5 === 0) {
                     ctx.globalAlpha = 0.1;
                 }
-                for (var i = 0; i < this.bossImg.length; i += 1) {
+                for (var i = this.bossImg.length - 1; i >= 0; i -= 1) {
                     ctx.drawImage(this.bossImg[i], this.currentX_px - cameraRect.left, this.currentY_px - cameraRect.top);
                 }
                 ctx.restore();
             } else if (!this.boss.isAlive) {
-                ctx.drawImage(AM.getAsset("./img/enemy/boss/forest boss statue idle.png"),
-                        this.currentX_px - cameraRect.left, this.currentY_px - cameraRect.top);
+                for (var i = this.bossImg.length - 1; i >= 0; i -= 1) {
+                    ctx.drawImage(this.bossImg[i], this.currentX_px - cameraRect.left, this.currentY_px - cameraRect.top);
+                }
             }
             this.boss.draw(ctx, cameraRect, tick);
-        } else if (this.isTrigger) {
-            for (var i = 0; i < this.bossImg.length; i += 1) {
-                ctx.drawImage(this.bossImg[i], this.currentX_px - cameraRect.left, this.currentY_px - cameraRect.top);
-            }
         } else {
-            ctx.drawImage(AM.getAsset("./img/enemy/boss/forest boss statue idle.png"),
+            // when the knight is not in the boss area, draw an idle img.
+            ctx.drawImage(AM.getAsset("./img/enemy/forest boss/forest boss statue idle.png"),
                     this.currentX_px - cameraRect.left, this.currentY_px - cameraRect.top);
         }
     }
@@ -101,15 +138,15 @@ function Boss (x, y, width, height, level) {
     this.health = BOSS_ATTR.STARTING_HEALTH;
     this.armType = ARM_ATTR.THIN;
 
-    var armThin = new Animation(AM.getAsset("./img/enemy/boss/forest boss spike 50px.png"), 50, 500, 1, true);
+    var armThin = new Animation(AM.getAsset("./img/enemy/forest boss/forest boss spike 50px.png"), 50, 500, 1, true);
     armThin.addFrame(0, 0);
-    var armNormal = new Animation(AM.getAsset("./img/enemy/boss/forest boss spike 100px.png"), 100, 500, 1, true);
+    var armNormal = new Animation(AM.getAsset("./img/enemy/forest boss/forest boss spike 100px.png"), 100, 500, 1, true);
     armNormal.addFrame(0, 0);
-    var armWidth = new Animation(AM.getAsset("./img/enemy/boss/forest boss spike 150px.png"), 150, 500, 1, true);
+    var armWidth = new Animation(AM.getAsset("./img/enemy/forest boss/forest boss spike 150px.png"), 150, 500, 1, true);
     armWidth.addFrame(0, 0);
-    var platform = new Animation(AM.getAsset("./img/enemy/boss/forest boss platform.png"), 150, 500, 1, true);
+    var platform = new Animation(AM.getAsset("./img/enemy/forest boss/forest boss platform.png"), 150, 500, 1, true);
     platform.addFrame(0, 0);
-    var core = new Animation(AM.getAsset("./img/enemy/boss/forest boss weak point.png"), 50, 50, 1, true);
+    var core = new Animation(AM.getAsset("./img/enemy/forest boss/forest boss weak point.png"), 50, 50, 1, true);
     core.addFrame(0, 0);
 
     var distanceBetweenArms = 260;
@@ -162,6 +199,11 @@ Boss.prototype = {
             }
         } else {
             // TODO destroy all the arms
+            this.setArmsState(ARM_ATTR.FALLING);
+
+        }
+        for (var i = 0; i < this.arms.length; i += 1) {
+            this.arms[i].update(tick);
         }
         var percent = this.health / BOSS_ATTR.STARTING_HEALTH;
         if (percent < 0.75) {
@@ -245,7 +287,22 @@ Boss.prototype = {
             this.arms[i].draw(ctx, cameraRect, tick);
         }
         this.core.draw(ctx, cameraRect, tick);
-
+        if (!this.isAlive && !this.isHidden()) {
+            var left = Math.floor(Math.random() * this.width) + this.currentX_px;
+            var top = Math.floor(Math.random() * this.height) + this.currentY_px;
+            var s = Math.floor(Math.random() * 5);
+            var dieAnimation = new Animation(AM.getAsset("./img/enemy/death anim.png"), 15, 15, 0.2, false);
+            dieAnimation.addFrame(0, 0, 15);
+            this.animationList.push({anim : dieAnimation, x : left, y: top, scale : s});
+            for (var i = this.animationList.length - 1; i >= 0; i -= 1) {
+                this.animationList[i].anim.drawFrame(tick, ctx,
+                        this.animationList[i].x - cameraRect.left, this.animationList[i].y - cameraRect.top,
+                        0, 0, this.animationList[i].scale);
+                if (this.animationList[i].anim.isDone()) {
+                    this.animationList.splice(i, 1);
+                }
+            }
+        }
     }
 }
 

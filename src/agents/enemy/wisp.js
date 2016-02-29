@@ -1,6 +1,6 @@
 var WISP_ATTR = {
     STARTING_HEALTH : 4,
-    VISION_RADIUS : 550,
+    VISION_RADIUS : 500,
     VELOCITY : 1,
 }
 
@@ -25,6 +25,12 @@ function Wisp (x, y, level) {
 
 Wisp.prototype = new Enemy();
 Wisp.prototype.constructor = Wisp;
+
+Wisp.prototype.reset = function () {
+    this.isChasing = false;
+    this.destination = null;
+    Enemy.prototype.reset.call(this);
+};
 
 Wisp.prototype.chaseKnightInVision = function (posX, posY, width, height) {
     var playerCenter = {
