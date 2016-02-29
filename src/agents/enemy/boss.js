@@ -60,9 +60,9 @@ BossArea.prototype = {
         this.boss.armType = ARM_ATTR.THIN;
         this.isReset = true;
         this.boss.animationList = [];
-        // while (this.boss.isHidden()) {
-        //     this.boss.update(tick, posX, posY, width, height);
-        // };
+        while (!this.boss.isHidden()) {
+            this.boss.update(this.game.clockTick);
+        };
     },
 
     triggerCamera : function () {

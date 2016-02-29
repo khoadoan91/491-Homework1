@@ -1,7 +1,7 @@
 var WISP_ATTR = {
     STARTING_HEALTH : 4,
     VISION_RADIUS : 500,
-    VELOCITY : 1,
+    VELOCITY : 2,
 }
 
 function Wisp (x, y, level) {
@@ -65,12 +65,12 @@ Wisp.prototype.chaseKnightInVision = function (posX, posY, width, height) {
 };
 
 Wisp.prototype.moveY = function () {
-    var tempY = this.currentY_px + this.yVelocity;
-    var obstacle = this.level.obstacleAt(this.currentX_px, tempY, this.width, this.height);
-    if (!obstacle) {
-        this.currentY_px = tempY;
-    }
-}
+    this.currentY_px = this.currentY_px + this.yVelocity;
+};
+
+Wisp.prototype.moveX = function () {
+    this.currentX_px = this.currentX_px + this.xVelocity;
+};
 
 Wisp.prototype.update = function(tick, posX, posY, width, height) {
     if (this.health <= 0) {
@@ -82,7 +82,7 @@ Wisp.prototype.update = function(tick, posX, posY, width, height) {
             this.gotAttacked(tick);
         } else {    // if the wisp is not being attacked, do some behavior
             if (this.isChasing) {
-                this.moveX(this.xVelocity);
+                this.moveX();
                 this.moveY();
                 // console.log(this.currentX_px + " " + this.currentY_px);
                 // offset for the position of skeleton and knight.

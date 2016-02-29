@@ -214,6 +214,7 @@ Level.prototype = {
             actor.reset();
             this.characters.push(actor);
         }
+        this.game.timer.gameTime = 0;
         this.switchAndPlayMusic(BGM.forestLevel);
     },
     
