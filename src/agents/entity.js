@@ -46,8 +46,9 @@ function Entity(x, y, width, height) {
     this.currentY_px = y * GAME_CONSTANT.BLOCK_SIZE;
     this.width = width;
     this.height = height;
-    
-    // Every entity represents as an rectangle. 
+    this.isColidable = true;
+
+    // Every entity represents as an rectangle.
     this.rect = new Rectangle(this.currentX_px, this.currentY_px, this.width, this.height);
 }
 
