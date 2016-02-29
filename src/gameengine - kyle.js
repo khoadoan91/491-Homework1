@@ -5,11 +5,11 @@ function Timer() {
 }
 
 Timer.prototype.tick = function () {
-     
+
     var wallCurrent = Date.now(),
         wallDelta = (wallCurrent - this.wallLastTimestamp) / 1000,
         gameDelta = Math.min(wallDelta, this.maxStep);
-    
+
     this.wallLastTimestamp = wallCurrent;
     this.gameTime += gameDelta;
     return gameDelta;
@@ -19,7 +19,7 @@ var KEY_CODES = {
     65 : 'a',
     68 : 'd',
     87 : 'w',
-    74 : 'j'
+    32 : 'space'
 };
 
 function GameEngine(ctx) {
@@ -91,7 +91,7 @@ GameEngine.prototype = {
         this.levels.push(entity);
     },
 
-    draw : function () { 
+    draw : function () {
         var i;
         this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
         this.ctx.save();

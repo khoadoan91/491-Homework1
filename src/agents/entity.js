@@ -18,7 +18,6 @@ var GAME_CONSTANT = {
 function Entity(x, y, width, height) {
     this.animationList = [];
     this.currentAnimation = 0;
-    
     this.currentX_px = x * GAME_CONSTANT.BLOCK_SIZE;
     this.currentY_px = y * GAME_CONSTANT.BLOCK_SIZE;
     this.width = width;

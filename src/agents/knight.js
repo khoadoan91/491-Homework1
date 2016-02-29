@@ -66,18 +66,18 @@ function Knight (x, y, game, level) {
 
     var KnightJumpRight = new Animation(AM.getAsset("./img/knight/knight jump.png"), 47, 55, 0.1, true);
     KnightJumpRight.addFrame(0, 0);
-    var KnightJumpLeft = new Animation(AM.getAsset("./img/knight/knight jump draft flipped.png"), 47, 55, 0.10, true);
-    KnightJumpLeft.addFrame(47, 0);
-    
-    var KnightFallRight = new Animation(AM.getAsset("./img/knight/knight jump draft.png"), 47, 55, 0.10, true);
+    var KnightJumpLeft = new Animation(AM.getAsset("./img/knight/knight jump flipped.png"), 47, 55, 0.1, true);
+    KnightJumpLeft.addFrame(0, 0);
+
+    var KnightFallRight = new Animation(AM.getAsset("./img/knight/knight jump.png"), 47, 55, 0.1, true);
     KnightFallRight.addFrame(47, 0);
-    var KnightFallLeft = new Animation(AM.getAsset("./img/knight/knight jump draft flipped.png"), 47, 55, 0.10, true);
-    KnightFallLeft.addFrame(0, 0);
-    
-    this.animationList.push(KnightRestRight);
-    this.animationList.push(KnightRestLeft);
-    this.animationList.push(KnightWalkRight);
-    this.animationList.push(KnightWalkLeft);
+    var KnightFallLeft = new Animation(AM.getAsset("./img/knight/knight jump flipped.png"), 47, 55, 0.1, true);
+    KnightFallLeft.addFrame(47, 0);
+
+    this.animationList.push(KnightStandingRight);
+    this.animationList.push(KnightStandingLeft);
+    this.animationList.push(KnightRunningRight);
+    this.animationList.push(KnightRunningLeft);
     this.animationList.push(KnightJumpRight);
     this.animationList.push(KnightJumpLeft);
     this.animationList.push(KnightFallRight);

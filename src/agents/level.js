@@ -36,8 +36,8 @@ Level.prototype = {
         this.height_px = this.height * GAME_CONSTANT.BLOCK_SIZE;
         console.log("Map dimension: " + this.width + "x" + this.height);
         console.log("Map dimension in pixel: " + this.width_px + "x" + this.height_px);
-        
-        var forestBlock = new Animation(AM.getAsset("./img/forest-stage/forest ground block.png"), 
+
+        var forestBlock = new Animation(AM.getAsset("./img/forest-stage/forest ground block.png"),
                 GAME_CONSTANT.BLOCK_SIZE, GAME_CONSTANT.BLOCK_SIZE, 1, true);
         forestBlock.addFrame(0,0);
         var wallBlock = new Animation(AM.getAsset("./img/forest-stage/tree tile.png"),
@@ -49,7 +49,7 @@ Level.prototype = {
 
         var currentX = 0;
         var currentY = 0;
-        
+
         for (var y = 0; y < this.height; y += 1) {
             var gridLine = [];
             for (var x = 0; x < this.width; x += 1) {
@@ -105,7 +105,7 @@ Level.prototype = {
     /**
      * Add a new background to the stage.
      * If the background is static, just pass one parameter
-     * Otherwise, set the second parameter true. 
+     * Otherwise, set the second parameter true.
      * The next two parameter decides where the background will start and the scale respects to the real map.
      */
     addBackground: function (background, isMoving, startFromBottom, scaleToWorldMap) {
@@ -135,7 +135,7 @@ Level.prototype = {
                 // the real scale respect to the canvas.
                 var s = this.height_px * scale / img.height;
                 // the position that img will start to draw.
-                xStart = img.width * s * Math.floor(xView / (img.width * s)) - xView; 
+                xStart = img.width * s * Math.floor(xView / (img.width * s)) - xView;
                 yStart = - yView;
                 if (this.backgroundList[i].startFromBottom) {  // the background starts from top
                     yStart = (1 - scale) * this.height_px - yView;
@@ -214,10 +214,9 @@ Level.prototype = {
             actor.reset();
             this.characters.push(actor);
         }
-        this.game.timer.gameTime = 0;
         this.switchAndPlayMusic(BGM.forestLevel);
     },
-    
+
     draw : function (ctx, cameraRect, tick) {
         if (!this.isGameOver && !this.isWin) {
             this.drawBackground(ctx, cameraRect.left, cameraRect.top);
@@ -240,7 +239,7 @@ Level.prototype = {
             ctx.drawImage(this.vic, 0, 0, this.vic.width, this.vic.height);
         }
     },
-    
+
     /**
      * Check if there is an obstacle at the position x, y with the width and height of the entity.
      */
@@ -272,7 +271,7 @@ Level.prototype = {
             }
         }
     },
-    
+
     /**
      * Check if there is any enemy nearby.
      */
@@ -312,59 +311,4 @@ function Background (img, isMoving, startFromBottom, scale) {
     this.scale = scale;
     this.startFromBottom = startFromBottom;
     this.isMoving = isMoving;
-}
-
-function Foreground (x, y, xEnd, yEnd) {
-    this.xStart = x || null;
-    this.yStart = y || null;
-    this.yEnd = yEnd || null;
-    this.xEnd = xEnd || null;
-}
-
-Foreground.prototype = {
-    set : function (x, y) {
-        if (this.xStart === null || this.xStart > x) {
-            this.xStart = x;
-        }
-        if (this.yStart === null || this.yStart > y) {
-            this.yStart = y;
-        }
-        if (this.xEnd === null || this.xEnd < x) {
-            this.xEnd = x;
-        }
-        if (this.yEnd === null || this.yEnd < y) {
-            this.yEnd = y;
-        }
-    },
-    
-    findItselfOnMap : function () {
-        this.left = this.xStart * GAME_CONSTANT.BLOCK_SIZE;
-        this.right = (this.xEnd + 1) * GAME_CONSTANT.BLOCK_SIZE;
-        this.top = this.yStart * GAME_CONSTANT.BLOCK_SIZE;
-        this.bottom = (this.yEnd + 2) * GAME_CONSTANT.BLOCK_SIZE;
-        this.width = this.right - this.left;
-        this.height = this.bottom - this.top;
-    }
-}
-
-function Door (x, y) {
-    Entity.call(this, x, y, GAME_CONSTANT.BLOCK_SIZE, GAME_CONSTANT.BLOCK_SIZE);
-    this.x = x;
-    this.y = y;
-    var door = AM.getAsset("./img/forest-stage/tree outer door.png");
-    var doorBlock = new Animation(door, door.width, door.height, 1, true);
-    doorBlock.addFrame(0,0);
-    this.animationList.push(doorBlock);
-}
-
-Door.prototype = new Entity();
-Door.prototype.constructor = Door;
-Door.prototype.assignHiddenPlace = function (foreground) {
-    if (this.y === foreground.yEnd ||
-        this.x + 1 === foreground.xStart ||
-        this.x - 1 === foreground.xEnd ||
-        this.y === foreground.yStart) {
-        this.foreground = foreground;
-        this.showHidden = false;
-    } 
 }
