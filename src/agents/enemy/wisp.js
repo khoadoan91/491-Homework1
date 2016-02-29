@@ -1,7 +1,7 @@
 var WISP_ATTR = {
     STARTING_HEALTH : 4,
-    VISION_RADIUS : 550,
-    VELOCITY : 1,
+    VISION_RADIUS : 500,
+    VELOCITY : 2,
 }
 
 function Wisp (x, y, level) {
@@ -25,6 +25,12 @@ function Wisp (x, y, level) {
 
 Wisp.prototype = new Enemy();
 Wisp.prototype.constructor = Wisp;
+
+Wisp.prototype.reset = function () {
+    this.isChasing = false;
+    this.destination = null;
+    Enemy.prototype.reset.call(this);
+};
 
 Wisp.prototype.chaseKnightInVision = function (posX, posY, width, height) {
     var playerCenter = {
@@ -52,19 +58,20 @@ Wisp.prototype.chaseKnightInVision = function (posX, posY, width, height) {
         this.currentAnimation = 0;
         if (this.xVelocity < 0) this.xVelocity *= -1;
     }
-    if ((posY > this.currentY_px && this.yVelocity < 0) ||
-        (posY < this.currentY_px && this.yVelocity > 0)) {
-        this.yVelocity *= -1;
+    if (posY > this.currentY_px) {
+        this.yVelocity = WISP_ATTR.VELOCITY;
+    } else if (posY < this.currentY_px) {
+        this.yVelocity = -WISP_ATTR.VELOCITY;
     }
 };
 
+Wisp.prototype.moveX = function (xVel) {
+    this.currentX_px = Math.floor(this.currentX_px + xVel);
+};
+
 Wisp.prototype.moveY = function () {
-    var tempY = this.currentY_px + this.yVelocity;
-    var obstacle = this.level.obstacleAt(this.currentX_px, tempY, this.width, this.height);
-    if (!obstacle) {
-        this.currentY_px = tempY;
-    }
-}
+    this.currentY_px = Math.floor(this.currentY_px + this.yVelocity);
+};
 
 Wisp.prototype.update = function(tick, posX, posY, width, height) {
     if (this.health <= 0) {

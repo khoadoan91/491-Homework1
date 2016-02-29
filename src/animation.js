@@ -21,11 +21,7 @@ function Animation(spriteSheet, frameWidth, frameHeight, frameDuration, loop, of
 
 Animation.prototype = {
     /**
-<<<<<<< HEAD
-     * Add several frames in a series to the animation 
-=======
      * Add several frames in a series to the animation
->>>>>>> e83c13b82c813d30842fe023010ac2a27b4e9e25
      * (will scan forward or backward - Default is forward).
      * Will automatically skip to the next row if it reaches the end or the start of a column.
      */

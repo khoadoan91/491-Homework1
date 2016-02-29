@@ -27,7 +27,7 @@
                                     |      ! |   |xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx|
                      x                   xxxx|               |                       |
                       x                      |               |                       |
-                       x            w       o|o                                      |
+                       x            *       o|o                                      |
                w        x        xxxxxxxxxxxxxxxxxxxxxxxxx                           |
               xxx               w|                       |                           |
               | |              xxx                       |xxxx                       |
