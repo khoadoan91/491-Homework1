@@ -2,7 +2,7 @@ var GAME_CONSTANT = {
     BLOCK_SIZE : 50,
 
     DAMAGE : 2,
-    MAX_HEALTH : 20,
+    MAX_HEALTH : 10,
     INJURE_TIME : 2,
     INVULNERABLE_TIME : 0.50,
 

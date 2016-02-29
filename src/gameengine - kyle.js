@@ -24,16 +24,19 @@ var KEY_CODES = {
 
 function GameEngine(ctx) {
     this.entities = [];
+    this.removeEntities = [];
     this.ctx = ctx;
     this.camera = null;
     this.player = null;
     this.keyStatus = {};
     this.keysDown = false;
+    this.isPlay = null;
 }
 
 GameEngine.prototype = {
-    init : function (camera) {
+    init : function (camera, level) {
         this.camera = camera;
+        this.level = level;
         for (var code in KEY_CODES) {
             if (KEY_CODES.hasOwnProperty(code)) {
                 this.keyStatus[KEY_CODES[code]] = false;
@@ -47,7 +50,8 @@ GameEngine.prototype = {
         var that = this;
         (function gameLoop() {
             that.loop();
-            window.requestAnimationFrame(gameLoop, that.ctx.canvas);
+            that.isPlay = window.requestAnimationFrame(gameLoop, that.ctx.canvas);
+            // that.isPlay();
         })();
     },
 
@@ -74,6 +78,15 @@ GameEngine.prototype = {
         }, false);
     },
 
+    resetLevel : function () {
+        for (var i = this.removeEntities.length - 1; i >= 0; i -= 1) {
+            var entity = this.removeEntities.splice(i, 1)[0];
+            this.entities.push(entity);
+        }
+        // this.removeEntities = [];
+        this.level.reset();
+    },
+
     addPlayer : function (player) {
         this.player = player;
     },
@@ -89,14 +102,14 @@ GameEngine.prototype = {
         for (i = 0; i < this.entities.length; i += 1) {
             this.entities[i].draw(this.ctx, this.camera.viewportRect, this.clockTick);
         }
-        this.player.draw(this.ctx, this.camera.viewportRect, this.clockTick);
+        // this.player.draw(this.ctx, this.camera.viewportRect, this.clockTick);
         this.ctx.restore();
     },
 
     update : function () {
 
         var entitiesCount = this.entities.length, i, entity;
-        this.player.update(this.clockTick);
+        // this.player.update(this.clockTick);
         for (i = 0; i < entitiesCount; i += 1) {
             entity = this.entities[i];
 
@@ -108,7 +121,8 @@ GameEngine.prototype = {
 
         for (i = this.entities.length - 1; i >= 0; i -= 1) {
             if (this.entities[i].removeFromWorld) {
-                this.entities.splice(i, 1);
+                var removedEntity = this.entities.splice(i, 1)[0];
+                this.removeEntities.push(removedEntity);
             }
         }
         this.camera.update();
