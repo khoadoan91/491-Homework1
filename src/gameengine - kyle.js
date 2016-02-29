@@ -23,20 +23,20 @@ var KEY_CODES = {
 };
 
 function GameEngine(ctx) {
-    this.levels = [];
-    this.currentLevel = 0;
+    this.entities = [];
+    this.removeEntities = [];
     this.ctx = ctx;
-    this.click = null;
     this.camera = null;
+    this.player = null;
     this.keyStatus = {};
     this.keysDown = false;
-    this.isRunning = false;
-    // this.isPlay = null;
+    this.isPlay = null;
 }
 
 GameEngine.prototype = {
-    init : function (camera) {
+    init : function (camera, level) {
         this.camera = camera;
+        this.level = level;
         for (var code in KEY_CODES) {
             if (KEY_CODES.hasOwnProperty(code)) {
                 this.keyStatus[KEY_CODES[code]] = false;
@@ -47,7 +47,6 @@ GameEngine.prototype = {
     },
 
     start : function () {
-        this.levels[this.currentLevel].switchAndPlayMusic();
         var that = this;
         (function gameLoop() {
             that.loop();
@@ -58,11 +57,6 @@ GameEngine.prototype = {
 
     startInput : function () {
         var that = this;
-        var getXandY = function (e) {
-            var x = e.clientX - that.ctx.canvas.getBoundingClientRect().left;
-            var y = e.clientY - that.ctx.canvas.getBoundingClientRect().top;
-            return { x: x, y: y };
-        }
         this.ctx.canvas.addEventListener("keydown", function (event) {
             if (KEY_CODES[event.keyCode]) {
                 that.keyStatus[KEY_CODES[event.keyCode]] = true;
@@ -82,32 +76,54 @@ GameEngine.prototype = {
                 event.preventDefault();
             }
         }, false);
-        this.ctx.canvas.addEventListener("click", function (event) {
-            that.click = getXandY(event);
-        }, false);
     },
 
-    addLevel : function (entity) {
-        this.levels.push(entity);
+    resetLevel : function () {
+        for (var i = this.removeEntities.length - 1; i >= 0; i -= 1) {
+            var entity = this.removeEntities.splice(i, 1)[0];
+            this.entities.push(entity);
+        }
+        // this.removeEntities = [];
+        this.level.reset();
+    },
+
+    addPlayer : function (player) {
+        this.player = player;
+    },
+
+    addEntity : function (entity) {
+        this.entities.push(entity);
     },
 
     draw : function () {
         var i;
         this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
         this.ctx.save();
-        this.levels[this.currentLevel].draw(this.ctx, this.camera.viewportRect, this.clockTick);
+        for (i = 0; i < this.entities.length; i += 1) {
+            this.entities[i].draw(this.ctx, this.camera.viewportRect, this.clockTick);
+        }
+        // this.player.draw(this.ctx, this.camera.viewportRect, this.clockTick);
         this.ctx.restore();
     },
 
     update : function () {
-        if (!this.levels[this.currentLevel].isWin) {
-            this.levels[this.currentLevel].update(this.clockTick);
-        } else {
-            // this.currentLevel += 1;
-            // if (this.currentLevel === this.levels.length) { // finish the last level.
-            //     // TODO stop the request animation frame.
-            //     // REMIND draw the last screen before stop.
-            // }
+
+        var entitiesCount = this.entities.length, i, entity;
+        // this.player.update(this.clockTick);
+        for (i = 0; i < entitiesCount; i += 1) {
+            entity = this.entities[i];
+
+            if (!entity.removeFromWorld) {
+                // console.log(entity);
+                entity.update(this.clockTick, this.player.currentX_px, this.player.currentY_px, this.player.width, this.player.height);
+            }
+        }
+
+        for (i = this.entities.length - 1; i >= 0; i -= 1) {
+            if (this.entities[i].removeFromWorld) {
+                var removedEntity = this.entities.splice(i, 1)[0];
+                this.removeEntities.push(removedEntity);
+            }
         }
         this.camera.update();
     },

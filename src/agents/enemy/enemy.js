@@ -16,22 +16,13 @@ function Enemy (x, y, width, height, health, xVel, yVel, level) {
 Enemy.prototype = new Entity();
 Enemy.prototype.constructor = Enemy;
 
-Enemy.prototype.reset = function () {
-    this.currentX_px = this.spawnX;
-    this.currentY_px = this.spawnY;
-    this.removeFromWorld = false;
-    this.isAlive = true;
-    this.currentAnimation = 0;
-    this.health = this.maxHealth;
-};
-
 Enemy.prototype.knockback = function (xVel, yVel) {
     this.moveX(xVel);
     if (this.invulnerableTime === GAME_CONSTANT.INVULNERABLE_TIME) {
         this.yVelocity = yVel;
     }
     this.moveY();
-};
+}
 
 Enemy.prototype.gotAttacked = function (tick, knockback) {
     if (this.isAlive) {

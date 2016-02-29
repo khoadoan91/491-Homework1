@@ -1,35 +1,14 @@
-function Level (game, music) {
+function Level () {
     this.backgroundList = [];
     this.grid = [];
     this.characters = [];
     this.bossArea = null;
     this.removeCharacters = [];
-    this.player = null;
-    this.isWin = false;
-    this.isGameOver = true;
-    this.game = game;
-    this.music = music;
 }
 
 Level.prototype = {
 
-    addTitleScreen : function (img) {
-        this.title = img;
-    },
-
-    addVictoryScreen : function (img) {
-        this.vic = img;
-    },
-
-    switchAndPlayMusic : function (newMusic) {
-        if (newMusic && this.music !== newMusic) {
-            this.music = newMusic;
-        } 
-        this.music.stop();
-        this.music.play();
-    },
-
-    parseLevelFile: function (inputArray) {
+    parseLevelFile: function (inputArray, game) {
         this.height = inputArray.length;
         this.width = inputArray[0].length;
         this.width_px = this.width * GAME_CONSTANT.BLOCK_SIZE;
@@ -57,35 +36,27 @@ Level.prototype = {
                 switch (currentSymbol) {
                     case "x" : block = new Block(x, y, forestBlock); break;
                     case "|" : block = new Block(x, y, wallBlock); break;
-                    case "F" : block = new Door(x, y, wallBlock); break;
-                    case "V" : block = new VictoryBlock(x, y, this); break;
+                    case "F" : block = new FinishDoor(x, y, doorBlock); break;
                     case "!" : this.characters.push(new Skeleton(x, y, this)); break;
-                    case "*" : this.characters.push(new Archer(x, y, this)); break;
+                    case "*" : this.characters.push(new Archer(x, y, game, this)); break;
                     case "w" : this.characters.push(new Wisp(x, y, this)); break;
                     case "o" : this.characters.push(new HealingStuff(x, y)); break;
-                    case "I" : block = new InvisibleBlock(x, y, wallBlock); break;
+                    case "D" : block = new Door(x, y, wallBlock); this.bossArea.door = block; break;
+                    // case "0" : block = "hidden"; foreground.set(x, y); break;
                     case "@" :
-                        this.player = new Knight(x, y, this.game, this);
+                        this.player = new Knight(x, y, game, this);
                         this.characters.push(this.player);
                         break;
-                    case "B" : this.readBossArea(inputArray, y, x); break;
+                    case "B" : this.readBossArea(inputArray, y, x, game); break;
                     default : break;
                 }
                 gridLine.push(block);
             }
             this.grid.push(gridLine);
         }
-        for (var y = 0; y < this.height; y += 1) {
-            for (var x = 0; x < this.width; x += 1) {
-                var block = this.grid[y][x];
-                if (block instanceof Door || block instanceof InvisibleBlock) {
-                    block.setBossArea(this.bossArea);
-                }
-            }
-        }
     },
 
-    readBossArea : function (input, y, x) {
+    readBossArea : function (input, y, x, game) {
         var height = 0, width = 0;
         for (var row = y; row < this.height; row += 1) {
             height += GAME_CONSTANT.BLOCK_SIZE;
@@ -98,8 +69,8 @@ Level.prototype = {
             }
         }
         console.log("Boss area width x height: " + width + "x" + height);
-        var bossBg = AM.getAsset("./img/enemy/forest boss/forest boss background.png");
-        this.bossArea = new BossArea(x, y, width, height, bossBg, this.game, this);
+        var bossBg = AM.getAsset("./img/enemy/boss/forest boss background.png");
+        this.bossArea = new BossArea(x, y, width, height, bossBg, game, this);
     },
 
     /**
@@ -151,92 +122,44 @@ Level.prototype = {
         }
     },
 
-    update : function (tick) {
-        if (!this.isGameOver) {
-            // TODO Update all movement platforms
+    update : function (tick, posX, posY, width, height) {
+        // TODO Update all movement platforms
 
-            // update all blocks
-            for (var y = 0; y < this.height; y += 1) {
-                for (var x = 0; x < this.width; x += 1) {
-                    var block = this.grid[y][x];
-                    if (block && !block.removeFromWorld) {
-                        block.update(tick, this.player.currentX_px, this.player.currentY_px,
-                            this.player.width, this.player.height);
-                    }
-                }
+        // remove the characters that are killed
+        for (var i = this.characters.length - 1; i >= 0; i -= 1) {
+            if (this.characters[i].removeFromWorld) {
+                var character = this.characters.splice(i, 1)[0];
+                this.removeCharacters.push(character);
             }
-            // update all characters
-            for (var i = 0; i < this.characters.length; i += 1) {
-                var actor = this.characters[i];
-                if (!actor.removeFromWorld) {
-                    actor.update(tick, this.player.currentX_px, this.player.currentY_px,
-                        this.player.width, this.player.height);
-                }
-            }
-            // remove the characters that are killed
-            for (var i = this.characters.length - 1; i >= 0; i -= 1) {
-                if (this.characters[i].removeFromWorld) {
-                    var character = this.characters.splice(i, 1)[0];
-                    this.removeCharacters.push(character);
-                }
-            }
-            this.bossArea.update(tick, this.player.currentX_px, this.player.currentY_px,
-                this.player.width, this.player.height);
-            if (this.player.removeFromWorld) {
-                this.isGameOver = true;
-            }
-        } else if (this.game.click) {
-            this.reset();
-            this.isGameOver = false;
-        } else if (this.isWin) {
-            // TODO tell game engine to break the requestAnimationFrame
         }
-    },
-
-    resetCamera : function () {
-        this.game.camera.follow(this.player, this.game.ctx.canvas.width/2 - 120,
-            this.game.ctx.canvas.height/2 - 120);
-    },
-
-    resetBossArea : function () {
-        if (this.player.currentX_px > this.bossArea.currentX_px &&
-                this.player.currentY_px > this.bossArea.currentY_px) {
-            this.bossArea.reset();
-            this.resetCamera();
-        }
-        this.switchAndPlayMusic(BGM.forestLevel);
+        this.bossArea.update(tick, posX, posY, width, height);
     },
 
     reset : function () {
         for (var i = this.removeCharacters.length - 1; i >= 0; i -= 1) {
             var actor = this.removeCharacters.splice(i, 1)[0];
-            if (actor instanceof Arrow) continue;
-            actor.reset();
+            // console.log(actor.spawnX + " " + actor.spawnY);
+            actor.currentX_px = actor.spawnX;
+            actor.currentY_px = actor.spawnY;
+            actor.removeFromWorld = false;
+            actor.isAlive = true;
+            actor.health = actor.maxHealth;
             this.characters.push(actor);
         }
-        this.switchAndPlayMusic(BGM.forestLevel);
+        // this.removeCharacters = [];
     },
 
     draw : function (ctx, cameraRect, tick) {
-        if (!this.isGameOver && !this.isWin) {
-            this.drawBackground(ctx, cameraRect.left, cameraRect.top);
-            this.bossArea.draw(ctx, cameraRect, tick);
+        this.drawBackground(ctx, cameraRect.left, cameraRect.top);
+        this.bossArea.draw(ctx, cameraRect, tick);
 
-            for (var y = 0; y < this.grid.length; y += 1) {
-                for (var x = 0; x < this.grid[0].length; x += 1) {
-                    var block = this.grid[y][x];
-                    if (block) {
-                        block.draw(ctx, cameraRect, tick);
-                    }
+        for (var y = 0; y < this.grid.length; y += 1) {
+            for (var x = 0; x < this.grid[0].length; x += 1) {
+                var block = this.grid[y][x];
+                if (block) {
+                    block.draw(ctx, cameraRect, tick);
                 }
             }
-            for (var i = 0; i < this.characters.length; i += 1) {
-                this.characters[i].draw(ctx, cameraRect, tick);
-            }
-        } else if (this.isGameOver) {
-            ctx.drawImage(this.title, 0, 0, this.title.width, this.title.height);
-        } else if (this.isWin) {
-            ctx.drawImage(this.vic, 0, 0, this.vic.width, this.vic.height);
         }
     },
 
@@ -255,7 +178,13 @@ Level.prototype = {
         for (var row = bottom; row >= top; row -= 1) {
             for (var col = left; col <= right; col += 1) {
                 var fieldType = this.grid[row][col];
-                if (fieldType && fieldType.isColidable) {return fieldType;}
+                // if (fieldType === "hidden") {continue};
+                // if (fieldType === "door") {
+                //     for (var i = 0; i < this.door.length; i += 1) {
+                //         if (this.door[i].x === x) {return this.door[i]};
+                //     }
+                // }
+                if (fieldType) {return fieldType;}
             }
         }
         var boss = this.bossArea.boss;
@@ -296,7 +225,7 @@ Level.prototype = {
                             player.currentX_px < arm.currentX_px + arm.width &&
                             player.currentY_px + player.height > arm.currentY_px &&
                             player.currentY_px < arm.currentY_px + arm.height) {
-                                allChar.push({isBeingAttacked : false, isAlive : true});
+                                allChar.push("spike-arm");
                             }
                     }
                 }

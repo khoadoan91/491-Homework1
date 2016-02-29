@@ -44,12 +44,6 @@ function Skeleton (x, y, level) {
 Skeleton.prototype = new Enemy();
 Skeleton.prototype.constructor = Skeleton;
 
-Skeleton.prototype.reset = function () {
-    this.isChasing = false;
-    this.destination = null;
-    Enemy.prototype.reset.call(this);
-};
-
 Skeleton.prototype.setIdleAnimation = function () {
     if (this.currentAnimation === SKELETON_ATTR.RUNNING_RIGHT) {
         this.currentAnimation = SKELETON_ATTR.STANDING_RIGHT;

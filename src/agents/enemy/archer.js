@@ -16,10 +16,10 @@ var ARCHER_ATTR = {
     ARROW_SPEED : 7
 }
 
-function Archer (x, y, level) {
+function Archer (x, y, game, level) {
     Enemy.call(this, x, y, 73, 64, ARCHER_ATTR.STARTING_HEALTH, 0, 0, level);
     this.currentY_px -= 15;
-    this.level = level;
+    this.game = game;
     this.timeDurationNextArrow = ARCHER_ATTR.SHOOTING_TIME;
     this.visionRadius = ARCHER_ATTR.VISION_RADIUS;
 
@@ -41,7 +41,7 @@ function Archer (x, y, level) {
     archerRightShootingDown.addFrame(0, 256, 3);
     archerLeftShootingUp.addFrame(0, 320, 3);
     archerRightShootingUp.addFrame(0, 384, 3);
-    archerDie.addFrame(0, 0, 7);
+    archerDie.addFrame(0, 0, 15);
 
     this.animationList.push(archerLeft);
     this.animationList.push(archerRight);
@@ -56,10 +56,6 @@ function Archer (x, y, level) {
 
 Archer.prototype = new Enemy();
 Archer.prototype.constructor = Archer;
-
-Archer.prototype.reset = function () {
-    Enemy.prototype.reset.call(this);
-}
 
 Archer.prototype.setAnimationFromAngle = function (angle) {
     if (angle >= Math.PI / (-6) && angle <= Math.PI / 6) {   // [-30, 30] degree
@@ -108,6 +104,7 @@ Archer.prototype.attackKnightInRange = function (tick, posX, posY, width, height
             this.animationList[this.currentAnimation].elapsedTime = 0;
             var arrow = new Arrow(archerCenter.x, archerCenter.y, distanceX, distanceY, angle, this.level);
             this.level.characters.push(arrow);
+            this.game.addEntity(arrow);
             if (posX > this.currentX_px) {
                 this.currentAnimation = ARCHER_ATTR.IDLE_RIGHT;
             } else {

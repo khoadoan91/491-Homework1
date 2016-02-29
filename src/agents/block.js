@@ -11,76 +11,11 @@ Block.prototype.constructor = Block;
 
 function Door (x, y, wallBlock) {
     Block.call(this, x, y, wallBlock);
-    var doorBlock = new Animation(AM.getAsset("./img/forest-stage/tree outer door.png", 0, -100),
+    var doorBlock = new Animation(AM.getAsset("./img/forest-stage/tree outer door.png"),
             GAME_CONSTANT.BLOCK_SIZE, GAME_CONSTANT.BLOCK_SIZE, 1, true);
     doorBlock.addFrame(0,0);
     this.animationList.push(doorBlock);
-    this.bossArea = null;
 }
 
-Door.prototype = {
-    setBossArea : function (bossArea) {
-        this.bossArea = bossArea;
-    },
-
-    update : function (tick, posX, posY, width, height) {
-        if (!this.bossArea.boss.isAlive) {
-            this.isColidable = false;
-        } else {
-            this.isColidable = true;
-        }
-    },
-
-    draw : function (ctx, cameraRect, tick) {
-        if (this.isColidable) {
-            Block.prototype.draw.call(this, ctx, cameraRect, tick);
-        }
-    }
-};
-
-function InvisibleBlock (x, y, wallBlock) {
-    Block.call(this, x, y, wallBlock);
-    this.isColidable = false;
-    this.bossArea = null;
-}
-
-InvisibleBlock.prototype = {
-    setBossArea : function (bossArea) {
-        this.bossArea = bossArea;
-    },
-
-    update : function (tick, posX, posY, width, height) {
-        if (this.bossArea && posX > this.bossArea.currentX_px &&
-                posY > this.bossArea.currentY_px) {
-            this.isColidable = true;
-        } else if (this.bossArea.isReset) {
-            this.isColidable = false;
-        }
-    },
-
-    draw : function (ctx, cameraRect, tick) {
-        if (this.isColidable) {
-            Block.prototype.draw.call(this, ctx, cameraRect, tick);
-        }
-    }
-};
-
-function VictoryBlock (x, y, level) {
-    Entity.call(this, x, y, GAME_CONSTANT.BLOCK_SIZE, GAME_CONSTANT.BLOCK_SIZE);
-    this.level = level;
-    this.isColidable = false;
-};
-
-VictoryBlock.prototype = {
-    update : function () {
-        var actor = this.level.enemyAt(this);
-        if (actor[0] instanceof Knight) {
-            this.level.isWin = true;
-            this.level.switchAndPlayMusic(BGM.victoryFanfare);
-        }
-    },
-
-    draw : function () {
-
-    }
-}
+Door.prototype = new Block();
+Door.prototype.constructor = Door;

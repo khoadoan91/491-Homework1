@@ -2,11 +2,10 @@ function Knight (x, y, game, level) {
     Entity.call(this, x, y, 41, 50);
     this.level = level;
     this.game = game;
-    this.lives = 1;
     this.xVelocity = 0;
     this.yVelocity = 0;
-    this.checkpointX = this.currentX_px;
-    this.checkpointY = this.currentY_px;
+    this.checkPointX = this.currentX_px;
+    this.checkPointY = this.currentY_px;
     this.atkHitBoxesRight = new SwordHitBox(1, -0.6);
     this.atkHitBoxesRight.addBox(this.currentX_px, 5, this.currentY_px, - 20, 60, 20); // swordbox top on right
     this.atkHitBoxesRight.addBox(this.currentX_px, 40, this.currentY_px, 0, 47, 50); // swordbox right
@@ -19,7 +18,6 @@ function Knight (x, y, game, level) {
     this.injureTime = GAME_CONSTANT.INJURE_TIME;
     
     //setting up gamestate bools
-    this.isAlive = true;
     this.removeFromWorld = false;
     this.controllable = true;
     this.isOnTheAir = false;
@@ -73,16 +71,6 @@ function Knight (x, y, game, level) {
 }
 
 Knight.prototype = {
-    reset : function () {
-        this.currentX_px = this.checkpointX;
-        this.currentY_px = this.checkpointY;
-        this.lives = 2;
-        this.currentAnimation = GAME_CONSTANT.STANDING_RIGHT_ANIMATION;
-        this.removeFromWorld = false;
-        this.isAlive = true;
-        this.health = GAME_CONSTANT.MAX_HEALTH;
-    },
-
     moveX : function () {
         if (this.controllable) {
             if (this.game.keyStatus["d"])  {
@@ -218,19 +206,11 @@ Knight.prototype = {
             this.knockback = {x : 0, y : 0};
         }
 
-        if (this.health <= 0 && this.lives > 0) {
-            this.level.resetBossArea();
-            this.injureTime = GAME_CONSTANT.INJURE_TIME;
-            this.isInjure = false;
-            this.currentX_px = this.checkpointX;
-            this.currentY_px = this.checkpointY;
+        if (this.health <= 0) {
+            this.game.resetLevel();
+            this.currentX_px = this.checkPointX;
+            this.currentY_px = this.checkPointY;
             this.health = GAME_CONSTANT.MAX_HEALTH;
-            this.lives -= 1;
-        } else if (this.lives <= 0) {
-            this.removeFromWorld = true;
-            this.level.isGameOver = true;
-            this.game.click = null;
-            // this.lives = 2;
         }
         this.atkHitBoxesRight.update(this.currentX_px, this.currentY_px);
         this.atkHitBoxesLeft.update(this.currentX_px, this.currentY_px);
@@ -260,13 +240,13 @@ Knight.prototype = {
         }
         Entity.prototype.draw.call(this, ctx, cameraRect, tick);
         ctx.restore();
-        // if (this.isAttacking) {
-        //     if (this.isRight) {
-        //         this.atkHitBoxesRight.draw(ctx, cameraRect);
-        //     } else {
-        //         this.atkHitBoxesLeft.draw(ctx,cameraRect);
-        //     }
-        // }
+        if (this.isAttacking) {
+            if (this.isRight) {
+                this.atkHitBoxesRight.draw(ctx, cameraRect);
+            } else {
+                this.atkHitBoxesLeft.draw(ctx,cameraRect);
+            }
+        }
         var percent = this.health / GAME_CONSTANT.MAX_HEALTH;
         ctx.fillStyle = "#8B3E31";
         this.drawRoundedRect(ctx, 10, 10, 520, 50);
@@ -278,10 +258,6 @@ Knight.prototype = {
             ctx.fillStyle = "red";
         }
         this.drawRoundedRect(ctx, 20, 20, 500 * percent, 30);
-        ctx.fillStyle = "green";
-        ctx.font = "25pt Impact";
-        var lives = "Lives : " + this.lives;
-        ctx.fillText(lives, 1100, 50);
     }
 };
 
