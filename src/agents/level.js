@@ -250,7 +250,7 @@ Level.prototype = {
         var top = Math.floor(y / GAME_CONSTANT.BLOCK_SIZE);
         var right = Math.floor((x + width) / GAME_CONSTANT.BLOCK_SIZE);
         var bottom = Math.floor((y + height) / GAME_CONSTANT.BLOCK_SIZE);
-        if (left < 0 || right > this.width || top < 0) {
+        if (left < 0 || x + width > this.width_px) {
             return "wall";
         }
 

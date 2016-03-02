@@ -17,6 +17,7 @@ var KNIGHT_ATTR = {
     FALLING_LEFT_ANIMATION : 7,
     ATTACKING_RIGHT_ANIMATION : 8,
     ATTACKING_LEFT_ANIMATION : 9,
+    DIE_ANIMATION : 10
 }
 
 function Knight (x, y, game, level) {
@@ -74,6 +75,9 @@ function Knight (x, y, game, level) {
     var KnightFallLeft = new Animation(AM.getAsset("./img/knight/knight jump flipped.png"), 47, 55, 0.1, true);
     KnightFallLeft.addFrame(47, 0);
 
+    var KnightDie = new Animation(AM.getAsset("./img/enemy/death anim.png"), 15, 15, 0.2, false);
+    KnightDie.addFrame(0, 0, 7);
+
     this.animationList.push(KnightStandingRight);
     this.animationList.push(KnightStandingLeft);
     this.animationList.push(KnightRunningRight);
@@ -84,6 +88,7 @@ function Knight (x, y, game, level) {
     this.animationList.push(KnightFallLeft);
     this.animationList.push(KnightAttackRight);
     this.animationList.push(KnightAttackLeft);
+    this.animationList.push(KnightDie);
 }
 
 Knight.prototype = {
@@ -91,9 +96,11 @@ Knight.prototype = {
         this.currentX_px = this.checkpointX;
         this.currentY_px = this.checkpointY;
         this.lives = 2;
+        this.controllable = true;
         this.currentAnimation = KNIGHT_ATTR.STANDING_RIGHT_ANIMATION;
         this.removeFromWorld = false;
         this.isAlive = true;
+        this.isAttacking = false;
         this.health = KNIGHT_ATTR.MAX_HEALTH;
     },
 
@@ -189,45 +196,68 @@ Knight.prototype = {
     },
 
     update : function (tick) {
-        this.moveX();
-        this.moveY();
-        if (this.game.keyStatus['space']) {
-            this.controllable = false;
-            this.isAttacking = true;
-            if (this.isRight) {
-                this.currentAnimation = KNIGHT_ATTR.ATTACKING_RIGHT_ANIMATION;
-            } else {
-                this.currentAnimation = KNIGHT_ATTR.ATTACKING_LEFT_ANIMATION;
-            }
-        }
-        if (this.isAttacking) {
-            if (this.animationList[this.currentAnimation].currentFrame() >= 1 &&
-            this.animationList[this.currentAnimation].currentFrame() <= 4) {
+        if (this.isAlive) {
+            this.moveX();
+            this.moveY();
+            if (this.game.keyStatus['space']) {
+                this.controllable = false;
+                this.isAttacking = true;
                 if (this.isRight) {
-                    this.atkHitBoxesRight.hit(this.level.characters);
+                    this.currentAnimation = KNIGHT_ATTR.ATTACKING_RIGHT_ANIMATION;
                 } else {
-                    this.atkHitBoxesLeft.hit(this.level.characters);
+                    this.currentAnimation = KNIGHT_ATTR.ATTACKING_LEFT_ANIMATION;
                 }
             }
-        }
-        if (this.animationList[KNIGHT_ATTR.ATTACKING_RIGHT_ANIMATION].isDone() ||
-            this.animationList[KNIGHT_ATTR.ATTACKING_LEFT_ANIMATION].isDone()) {
-            this.animationList[KNIGHT_ATTR.ATTACKING_RIGHT_ANIMATION].elapsedTime = 0;
-            this.animationList[KNIGHT_ATTR.ATTACKING_LEFT_ANIMATION].elapsedTime = 0;
-            this.controllable = true;
-            this.isAttacking = false;
-        }
-        var monster = this.level.enemyAt(this);
-        if (monster.length > 0) {
-            this.touchEnemy(monster);
-        }
-        if (this.isInjure) {
-            this.injureTime -= tick;
-        }
-        if (this.injureTime <= 0) {
-            this.injureTime = KNIGHT_ATTR.INJURE_TIME;
-            this.isInjure = false;
-            this.knockback = {x : 0, y : 0};
+            if (this.isAttacking) {
+                if (this.animationList[this.currentAnimation].currentFrame() >= 1 &&
+                this.animationList[this.currentAnimation].currentFrame() <= 4) {
+                    if (this.isRight) {
+                        this.atkHitBoxesRight.hit(this.level.characters);
+                    } else {
+                        this.atkHitBoxesLeft.hit(this.level.characters);
+                    }
+                }
+            }
+            if (this.animationList[KNIGHT_ATTR.ATTACKING_RIGHT_ANIMATION].isDone() ||
+                this.animationList[KNIGHT_ATTR.ATTACKING_LEFT_ANIMATION].isDone()) {
+                this.animationList[KNIGHT_ATTR.ATTACKING_RIGHT_ANIMATION].elapsedTime = 0;
+                this.animationList[KNIGHT_ATTR.ATTACKING_LEFT_ANIMATION].elapsedTime = 0;
+                this.controllable = true;
+                this.isAttacking = false;
+            }
+            var monster = this.level.enemyAt(this);
+            if (monster.length > 0) {
+                this.touchEnemy(monster);
+            }
+            if (this.isInjure) {
+                this.injureTime -= tick;
+            }
+            if (this.injureTime <= 0) {
+                this.injureTime = KNIGHT_ATTR.INJURE_TIME;
+                this.isInjure = false;
+                this.knockback = {x : 0, y : 0};
+            }
+            // if (this.health <= 0) {
+            //     this.injureTime = KNIGHT_ATTR.INJURE_TIME;
+            //     this.isInjure = false;
+            //     this.isAlive = false;
+            //     this.currentAnimation = KNIGHT_ATTR.DIE_ANIMATION;
+            // }
+        } else {
+            // if (this.animationList[KNIGHT_ATTR.DIE_ANIMATION].isDone()) {
+            //     this.animationList[KNIGHT_ATTR.DIE_ANIMATION].elapsedTime = 0;
+            //     if (this.lives > 0) {
+            //         this.currentX_px = this.checkpointX;
+            //         this.currentY_px = this.checkpointY;
+            //         this.health = KNIGHT_ATTR.MAX_HEALTH;
+            //         this.lives -= 1;
+            //     } else {
+            //         this.level.isGameOver = true;
+            //         this.game.click = null;
+            //     }
+            //     this.removeFromWorld = true;
+            //     this.level.resetBossArea();
+            // }
         }
 
         if (this.health <= 0 && this.lives > 0) {
@@ -265,6 +295,7 @@ Knight.prototype = {
     },
 
     draw : function (ctx, cameraRect, tick) {
+        // flashing when getting injured
         ctx.save();
         var flashing = Math.floor(this.injureTime * 100);
         if (this.isInjure && (flashing % 5 === 0 || flashing % 2 === 0)) {
@@ -272,6 +303,8 @@ Knight.prototype = {
         }
         Entity.prototype.draw.call(this, ctx, cameraRect, tick);
         ctx.restore();
+
+        // draw swordhitbox for debug, set showSwordHitBox true in the constructor.
         if (this.showSwordHitBox && this.isAttacking) {
             if (this.isRight) {
                 this.atkHitBoxesRight.draw(ctx, cameraRect);
@@ -279,6 +312,8 @@ Knight.prototype = {
                 this.atkHitBoxesLeft.draw(ctx,cameraRect);
             }
         }
+
+        // draw health bar 
         var percent = this.health / KNIGHT_ATTR.MAX_HEALTH;
         ctx.fillStyle = "#2C5D63";
         this.drawRoundedRect(ctx, 10, 10, 520, 50);

@@ -3,7 +3,7 @@ var BOSS_ATTR = {
     HIT : 1,
     ATK : 2,
 
-    STARTING_HEALTH : 2,
+    STARTING_HEALTH : 6,
     WAITING_TIME : 2,
     NORMAL_SPEED : 150,
     ATK_SPEED : {
@@ -70,7 +70,7 @@ BossArea.prototype = {
             if (this.delayTime < 0) {
                 this.boss.update(tick, posX, posY, width, height);
             } else {
-                this.delayTime -= tick;
+                this.delayTime -= tick; 
             }
         }
         if (!this.boss.isAlive && this.boss.isHidden()) {
@@ -78,8 +78,8 @@ BossArea.prototype = {
             this.level.switchAndPlayMusic(BGM.forestLevel);
             this.isTrigger = false; // this flag for drawing the boss.
         }
-        if ((this.boss.health === 10 && this.bossImg.length === 4) ||
-            (this.boss.health === 6 && this.bossImg.length === 3) ||
+        if ((this.boss.health === 4 && this.bossImg.length === 4) ||
+            (this.boss.health === 2 && this.bossImg.length === 3) ||
             (this.boss.health === 0 && this.bossImg.length === 2)) {
             this.bossImg.splice(this.bossImg.length - 1, 1);
         }
@@ -98,19 +98,19 @@ BossArea.prototype = {
                     ctx.globalAlpha = 0.1;
                 }
                 for (var i = this.bossImg.length - 1; i >= 0; i -= 1) {
-                    ctx.drawImage(this.bossImg[i], this.currentX_px - cameraRect.left, this.currentY_px - cameraRect.top);
+                    ctx.drawImage(this.bossImg[i], this.currentX_px + 243 - cameraRect.left, this.currentY_px + 58 - cameraRect.top);
                 }
                 ctx.restore();
             } else if (!this.boss.isAlive) {
                 for (var i = this.bossImg.length - 1; i >= 0; i -= 1) {
-                    ctx.drawImage(this.bossImg[i], this.currentX_px - cameraRect.left, this.currentY_px - cameraRect.top);
+                    ctx.drawImage(this.bossImg[i], this.currentX_px + 243 - cameraRect.left, this.currentY_px + 58 - cameraRect.top);
                 }
             }
             this.boss.draw(ctx, cameraRect, tick);
         } else {
             // when the knight is not in the boss area, draw an idle img.
             ctx.drawImage(AM.getAsset("./img/enemy/forest boss/forest boss statue idle.png"),
-                    this.currentX_px - cameraRect.left, this.currentY_px - cameraRect.top);
+                    this.currentX_px + 243 - cameraRect.left, this.currentY_px + 58 - cameraRect.top);
         }
     }
 };
