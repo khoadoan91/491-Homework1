@@ -267,10 +267,11 @@ Level.prototype = {
         if (left < 0 || x + width > this.width_px) {
             return "wall";
         }
-        if (top < 0) return;
-        if (bottom > this.height_px) {
-            // return death
+        if (bottom >= this.height) {
+            this.player.removeFromWorld = true;
+            return;
         }
+        if (top < 0) return;
         for (var row = bottom; row >= top; row -= 1) {
             for (var col = left; col <= right; col += 1) {
                 var fieldType = this.grid[row][col];

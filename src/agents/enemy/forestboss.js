@@ -3,7 +3,7 @@ var BOSS_ATTR = {
     HIT : 1,
     ATK : 2,
 
-    STARTING_HEALTH : 2,
+    STARTING_HEALTH : 1,
     WAITING_TIME : 2,
     NORMAL_SPEED : 150,
     ATK_SPEED : {
@@ -62,7 +62,8 @@ ForestBossArea.prototype = {
     },
 
     update : function (tick, posX, posY, width, height) {
-        if (!this.isTrigger && posX > this.currentX_px && posY > this.currentY_px) {
+        if (!this.isTrigger && posX > this.currentX_px && posY > this.currentY_px &&
+                posX < this.currentX_px + this.width) {
             this.triggerCamera();
             this.isTrigger = true;
         }
