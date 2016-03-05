@@ -30,13 +30,12 @@ function GameEngine(ctx) {
     this.camera = null;
     this.keyStatus = {};
     this.keysDown = false;
-    this.isRunning = false;
-    // this.isPlay = null;
+    this.player = null;
 }
 
 GameEngine.prototype = {
-    init : function (camera) {
-        this.camera = camera;
+    init : function () {
+        this.player = new Knight(this);
         for (var code in KEY_CODES) {
             if (KEY_CODES.hasOwnProperty(code)) {
                 this.keyStatus[KEY_CODES[code]] = false;
@@ -47,12 +46,17 @@ GameEngine.prototype = {
     },
 
     start : function () {
-        this.levels[this.currentLevel].switchAndPlayMusic();
+        // this.levels[this.currentLevel].switchAndPlayMusic();
+        var curLv = this.levels[this.currentLevel]
+        this.player.init(curLv);
+        curLv.addPlayer(this.player);
+        var width = this.ctx.canvas.width, height = this.ctx.canvas.height;
+        this.camera = new Camera(0, 0, width, height, curLv.width_px, curLv.height_px);
+        this.camera.follow(this.player, width/2 - 120, height/2 - 120);
         var that = this;
         (function gameLoop() {
             that.loop();
-            that.isPlay = window.requestAnimationFrame(gameLoop, that.ctx.canvas);
-            // that.isPlay();
+            window.requestAnimationFrame(gameLoop, that.ctx.canvas);
         })();
     },
 
@@ -103,11 +107,15 @@ GameEngine.prototype = {
         if (!this.levels[this.currentLevel].isWin) {
             this.levels[this.currentLevel].update(this.clockTick);
         } else {
-            // this.currentLevel += 1;
-            // if (this.currentLevel === this.levels.length) { // finish the last level.
-            //     // TODO stop the request animation frame.
-            //     // REMIND draw the last screen before stop.
-            // }
+            this.currentLevel += 1;
+            if (this.currentLevel === this.levels.length) { // finish the last level.
+                // TODO stop the request animation frame.
+                // REMIND draw the last screen before stop.
+            }
+            this.player.init(this.levels[this.currentLevel]);
+            this.levels[this.currentLevel].addPlayer(this.player);
+            this.camera.worldRect = new Rectangle(0, 0, this.levels[this.currentLevel].width_px, 
+                    this.levels[this.currentLevel].height_px);
         }
         this.camera.update();
     },

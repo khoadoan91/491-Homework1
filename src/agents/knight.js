@@ -20,15 +20,16 @@ var KNIGHT_ATTR = {
     DIE_ANIMATION : 10
 }
 
-function Knight (x, y, game, level) {
-    Entity.call(this, x, y, 41, 50);
-    this.level = level;
+function Knight (game) {
+// function Knight (x, y, game, level) {
+    Entity.call(this, 0, 0, 41, 50);
+    // this.level = level;
     this.game = game;
-    this.lives = 1;
+    this.death = 0;
     this.xVelocity = 0;
     this.yVelocity = 0;
-    this.checkpointX = this.currentX_px;
-    this.checkpointY = this.currentY_px;
+    // this.checkpointX = this.currentX_px;
+    // this.checkpointY = this.currentY_px;
     this.atkHitBoxesRight = new SwordHitBox(1, -0.6);
     this.atkHitBoxesRight.addBox(this.currentX_px, 5, this.currentY_px, - 20, 60, 20); // swordbox top on right
     this.atkHitBoxesRight.addBox(this.currentX_px, 40, this.currentY_px, 0, 47, 50); // swordbox right
@@ -92,16 +93,25 @@ function Knight (x, y, game, level) {
 }
 
 Knight.prototype = {
+    init : function (level) {
+        this.currentX_px = level.playerSpawn.currentX_px;
+        this.currentY_px = level.playerSpawn.currentY_px;
+        this.level = level;
+        this.checkpointX = this.currentX_px;
+        this.checkpointY = this.currentY_px;
+    },
+
     reset : function () {
         this.currentX_px = this.checkpointX;
         this.currentY_px = this.checkpointY;
-        this.lives = 2;
         this.controllable = true;
         this.currentAnimation = KNIGHT_ATTR.STANDING_RIGHT_ANIMATION;
         this.removeFromWorld = false;
         this.isAlive = true;
         this.isAttacking = false;
         this.health = KNIGHT_ATTR.MAX_HEALTH;
+        this.injureTime = KNIGHT_ATTR.INJURE_TIME;
+        this.isInjure = false;
     },
 
     moveX : function () {
@@ -237,43 +247,40 @@ Knight.prototype = {
                 this.isInjure = false;
                 this.knockback = {x : 0, y : 0};
             }
-            // if (this.health <= 0) {
-            //     this.injureTime = KNIGHT_ATTR.INJURE_TIME;
-            //     this.isInjure = false;
-            //     this.isAlive = false;
-            //     this.currentAnimation = KNIGHT_ATTR.DIE_ANIMATION;
-            // }
+            if (this.health <= 0) {
+                this.injureTime = KNIGHT_ATTR.INJURE_TIME;
+                this.isInjure = false;
+                this.isAlive = false;
+                this.currentAnimation = KNIGHT_ATTR.DIE_ANIMATION;
+            }
         } else {
-            // if (this.animationList[KNIGHT_ATTR.DIE_ANIMATION].isDone()) {
-            //     this.animationList[KNIGHT_ATTR.DIE_ANIMATION].elapsedTime = 0;
-            //     if (this.lives > 0) {
-            //         this.currentX_px = this.checkpointX;
-            //         this.currentY_px = this.checkpointY;
-            //         this.health = KNIGHT_ATTR.MAX_HEALTH;
-            //         this.lives -= 1;
-            //     } else {
-            //         this.level.isGameOver = true;
-            //         this.game.click = null;
-            //     }
-            //     this.removeFromWorld = true;
-            //     this.level.resetBossArea();
-            // }
+            if (this.animationList[KNIGHT_ATTR.DIE_ANIMATION].isDone()) {
+                this.animationList[KNIGHT_ATTR.DIE_ANIMATION].elapsedTime = 0;
+                this.level.isGameOver = true;
+                this.game.click = null;
+                this.death += 1;
+                this.removeFromWorld = true;
+            }
         }
 
-        if (this.health <= 0 && this.lives > 0) {
-            this.level.resetBossArea();
-            this.injureTime = KNIGHT_ATTR.INJURE_TIME;
-            this.isInjure = false;
-            this.currentX_px = this.checkpointX;
-            this.currentY_px = this.checkpointY;
-            this.health = KNIGHT_ATTR.MAX_HEALTH;
-            this.lives -= 1;
-        } else if (this.lives <= 0) {
-            this.removeFromWorld = true;
-            this.level.isGameOver = true;
-            this.game.click = null;
-            // this.lives = 2;
-        }
+        // if (this.health <= 0 && this.lives > 0) {
+        //     this.level.resetBossArea();
+        //     this.injureTime = KNIGHT_ATTR.INJURE_TIME;
+        //     this.isInjure = false;
+        //     this.currentX_px = this.checkpointX;
+        //     this.currentY_px = this.checkpointY;
+        //     this.health = KNIGHT_ATTR.MAX_HEALTH;
+        //     this.lives -= 1;
+        // } else if (this.lives <= 0) {
+        //     this.removeFromWorld = true;
+        //     this.level.isGameOver = true;
+        //     this.game.click = null;
+        // }
+        // if (this.health <= 0) {
+        //     this.removeFromWorld = true;
+        //     this.death += 1;
+        //     this.game.click = null;
+        // }
         this.atkHitBoxesRight.update(this.currentX_px, this.currentY_px);
         this.atkHitBoxesLeft.update(this.currentX_px, this.currentY_px);
         Entity.prototype.update.call(this);
@@ -327,8 +334,8 @@ Knight.prototype = {
         this.drawRoundedRect(ctx, 20, 20, 500 * percent, 30);
         ctx.fillStyle = "#A9C52F";
         ctx.font = "25pt Impact";
-        var lives = "Lives : " + this.lives;
-        ctx.fillText(lives, 1100, 50);
+        var death = "Death : " + this.death;
+        ctx.fillText(death, 1100, 50);
         var time = "Total time: " + Math.floor(this.game.timer.gameTime);
         ctx.fillText(time, 700, 50);
     }

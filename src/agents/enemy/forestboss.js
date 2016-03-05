@@ -3,7 +3,7 @@ var BOSS_ATTR = {
     HIT : 1,
     ATK : 2,
 
-    STARTING_HEALTH : 6,
+    STARTING_HEALTH : 2,
     WAITING_TIME : 2,
     NORMAL_SPEED : 150,
     ATK_SPEED : {
@@ -14,7 +14,7 @@ var BOSS_ATTR = {
     }
 };
 
-function BossArea(x, y, width, height, bg, game, level) {
+function ForestBossArea(x, y, width, height, bg, game, level) {
     Entity.call(this, x, y, width, height);
     this.bossImg = [];
     this.bossImg.push(AM.getAsset("./img/enemy/forest boss/forest boss statue base.png"));
@@ -27,11 +27,11 @@ function BossArea(x, y, width, height, bg, game, level) {
     this.level = level;
     this.isTrigger = false;
     this.delayTime = 2;
-    this.boss = new Boss(x, y, width, height, level);
+    this.boss = new ForestBoss(x, y, width, height, level);
     this.transparent = 1;
-}
+};
 
-BossArea.prototype = {
+ForestBossArea.prototype = {
     reset : function () {
         this.bossImg = [];
         this.bossImg.push(AM.getAsset("./img/enemy/forest boss/forest boss statue base.png"));
@@ -115,15 +115,13 @@ BossArea.prototype = {
     }
 };
 
-function Boss (x, y, width, height, level) {
+function ForestBoss (x, y, width, height, level) {
     Entity.call(this, x, y, width, height);
     this.timeWait = BOSS_ATTR.WAITING_TIME;
     this.status = BOSS_ATTR.NORMAL;
     this.isAtk = false;
     this.isInjure = false;
     this.isAlive = true;
-    // this.normalSpeed = BOSS_ATTR.NORMAL_SPEED;
-    // this.atkSpeed = BOSS_ATTR.ATK_SPEED;
     this.health = BOSS_ATTR.STARTING_HEALTH;
     this.armType = ARM_ATTR.THIN;
 
@@ -155,7 +153,7 @@ function Boss (x, y, width, height, level) {
     this.coreArm = 0;
 }
 
-Boss.prototype = {
+ForestBoss.prototype = {
     update : function (tick, posX, posY, width, height) {
         if (this.isAlive) {
             if (this.isHidden()) {
@@ -186,11 +184,11 @@ Boss.prototype = {
             for (var i = 0; i < this.arms.length; i += 1) {
                 this.arms[i].update(tick);
             }
-        } else {
-            // TODO destroy all the arms
+        } else {   // when the boss die.
             this.setArmsState(ARM_ATTR.FALLING);
 
         }
+        // after deciding what to do, let all the arms do their update.
         for (var i = 0; i < this.arms.length; i += 1) {
             this.arms[i].update(tick);
         }
