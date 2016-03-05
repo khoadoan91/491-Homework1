@@ -3,7 +3,7 @@ var BOSS_ATTR = {
     HIT : 1,
     ATK : 2,
 
-    STARTING_HEALTH : 1,
+    STARTING_HEALTH : 6,
     WAITING_TIME : 2,
     NORMAL_SPEED : 150,
     ATK_SPEED : {
